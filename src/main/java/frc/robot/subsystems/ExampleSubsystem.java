@@ -4,11 +4,21 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ExampleSubsystem extends SubsystemBase {
+
+  TalonSRX motor1 = new TalonSRX(1);
+  TalonSRX motor2 = new TalonSRX(2);
+
   /** Creates a new ExampleSubsystem. */
-  public ExampleSubsystem() {}
+  public ExampleSubsystem() {
+    motor1.set(ControlMode.PercentOutput, 20);
+    motor2.set(ControlMode.PercentOutput, 20);
+  }
 
   @Override
   public void periodic() {
