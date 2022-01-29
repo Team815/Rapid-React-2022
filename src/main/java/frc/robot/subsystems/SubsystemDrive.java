@@ -14,27 +14,24 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class SubsystemDrive extends SubsystemBase {
 
   DifferentialDrive drive;
-  final double LIMIT = 0.7;
 
   /** Creates a new ExampleSubsystem. */
   public SubsystemDrive() {
     MotorControllerGroup leftGroup = new MotorControllerGroup(
-      new CANSparkMax(0, MotorType.kBrushless),
       new CANSparkMax(1, MotorType.kBrushless),
-      new CANSparkMax(2, MotorType.kBrushless)
+      new CANSparkMax(2, MotorType.kBrushless),
+      new CANSparkMax(3, MotorType.kBrushless)
     );
     MotorControllerGroup rightGroup = new MotorControllerGroup(
-      new CANSparkMax(3, MotorType.kBrushless),
       new CANSparkMax(4, MotorType.kBrushless),
-      new CANSparkMax(5, MotorType.kBrushless)
+      new CANSparkMax(5, MotorType.kBrushless),
+      new CANSparkMax(6, MotorType.kBrushless)
     );
-    rightGroup.setInverted(true);
+    leftGroup.setInverted(true);
     drive = new DifferentialDrive(leftGroup, rightGroup);
   }
 
   public void drive(double speed, double rotation) {
-    speed = Math.min(speed, LIMIT);
-    speed = Math.max(speed, -LIMIT);
     drive.arcadeDrive(speed, rotation);
   }
 

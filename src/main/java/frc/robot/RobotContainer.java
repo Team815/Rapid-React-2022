@@ -32,7 +32,7 @@ public class RobotContainer {
 
     m_exampleSubsystem.setDefaultCommand(new RunCommand(
       () ->
-      m_exampleSubsystem.drive(-controller.getLeftY(), -controller.getRightX()),
+      m_exampleSubsystem.drive(-controller.getLeftY(), controller.getRightX()),
       m_exampleSubsystem));
   }
 
