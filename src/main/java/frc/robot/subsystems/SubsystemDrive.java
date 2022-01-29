@@ -13,7 +13,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SubsystemDrive extends SubsystemBase {
 
+  final double SPEED_MULTIPLIER_INCREMENT = 0.25;
   DifferentialDrive drive;
+  double speedMultiplier = 1;
 
   /** Creates a new ExampleSubsystem. */
   public SubsystemDrive() {
@@ -32,7 +34,17 @@ public class SubsystemDrive extends SubsystemBase {
   }
 
   public void drive(double speed, double rotation) {
+    speed *= speedMultiplier;
+    rotation *= speedMultiplier;
     drive.arcadeDrive(speed, rotation);
+  }
+
+  public void increaseSpeedMultiplier(){
+    speedMultiplier = Math.min(1, speedMultiplier + SPEED_MULTIPLIER_INCREMENT);
+  }
+
+  public void decreaseSpeedMultiplier(){
+    speedMultiplier = Math.max(SPEED_MULTIPLIER_INCREMENT, speedMultiplier - SPEED_MULTIPLIER_INCREMENT);
   }
 
   @Override
