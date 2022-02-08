@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.RobotController.Button;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.BallPickup;
 import frc.robot.subsystems.SubsystemDrive;
@@ -26,7 +27,7 @@ public class RobotContainer {
   private final BallPickup ballPickup = new BallPickup();
 
   private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
-  XboxController controller = new XboxController(0);
+  RobotController controller = new RobotController(0);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -58,10 +59,10 @@ public class RobotContainer {
     new JoystickButton(controller, Constants.INDEX_BUTTON_X).whenReleased(new InstantCommand(
       () -> ballPickup.set(0)));
 
-    new JoystickButton(controller, Constants.INDEX_BUTTON_Y).whenPressed(new InstantCommand(
+    controller.getButton(Button.Y).whenPressed(new InstantCommand(
       () -> ballPickup.set(-.3)));
 
-    new JoystickButton(controller, Constants.INDEX_BUTTON_Y).whenReleased(new InstantCommand(
+    controller.getButton(Button.Y).whenReleased(new InstantCommand(
       () -> ballPickup.set(0)));
   }
 

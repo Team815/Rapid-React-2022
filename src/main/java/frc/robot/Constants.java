@@ -22,7 +22,7 @@ public final class Constants {
     public static final int INDEX_BUTTON_SELECT = 7;
     public static final int INDEX_BUTTON_START = 8;
     public static final int INDEX_BUTTON_JOYSTICK_LEFT = 9;
-    public static final int INDEX_BUTTON_JOYSICK_RIGHT = 10;
+    public static final int INDEX_BUTTON_JOYSTICK_RIGHT = 10;
     public static final int INDEX_AXIS_JOYSTICK_LEFT_X = 0;
     public static final int INDEX_AXIS_JOYSTICK_LEFT_Y = 1;
     public static final int INDEX_AXIS_TRIGGER_LEFT = 2;
