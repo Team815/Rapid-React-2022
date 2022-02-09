@@ -47,22 +47,22 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    new JoystickButton(controller, Constants.INDEX_BUTTON_BUMPER_LEFT).whenPressed(new InstantCommand(
+    controller.getButton(Button.DPAD_DOWN).whenPressed(new InstantCommand(
       () -> m_exampleSubsystem.decreaseSpeedMultiplier()));
 
-    new JoystickButton(controller, Constants.INDEX_BUTTON_BUMPER_RIGHT).whenPressed(new InstantCommand(
+      controller.getButton(Button.DPAD_UP).whenPressed(new InstantCommand(
       () -> m_exampleSubsystem.increaseSpeedMultiplier()));
 
-    new JoystickButton(controller, Constants.INDEX_BUTTON_X).whenPressed(new InstantCommand(
+      controller.getButton(Button.TRIGGER_RIGHT).whenPressed(new InstantCommand(
       () -> ballPickup.set(.3)));
 
-    new JoystickButton(controller, Constants.INDEX_BUTTON_X).whenReleased(new InstantCommand(
+      controller.getButton(Button.TRIGGER_RIGHT).whenReleased(new InstantCommand(
       () -> ballPickup.set(0)));
 
-    controller.getButton(Button.Y).whenPressed(new InstantCommand(
+    controller.getButton(Button.TRIGGER_LEFT).whenPressed(new InstantCommand(
       () -> ballPickup.set(-.3)));
 
-    controller.getButton(Button.Y).whenReleased(new InstantCommand(
+    controller.getButton(Button.TRIGGER_LEFT).whenReleased(new InstantCommand(
       () -> ballPickup.set(0)));
   }
 

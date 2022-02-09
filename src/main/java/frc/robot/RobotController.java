@@ -23,9 +23,16 @@ public class RobotController extends XboxController {
         START,
         JOYSTICK_LEFT,
         JOYSTICK_RIGHT,
+        TRIGGER_LEFT,
+        TRIGGER_RIGHT,
+        DPAD_UP,
+        DPAD_RIGHT,
+        DPAD_DOWN,
+        DPAD_LEFT
     }
 
-    private HashMap<Button, JoystickButton> buttons = new HashMap<Button, JoystickButton>();
+    private final double TRIGGER_THRESHOLD = 0.2;
+    private HashMap<Button, edu.wpi.first.wpilibj2.command.button.Button> buttons = new HashMap<Button, edu.wpi.first.wpilibj2.command.button.Button>();
 
     public RobotController(int port) {
         super(port);
@@ -40,9 +47,15 @@ public class RobotController extends XboxController {
         buttons.put(Button.START, new JoystickButton(this, Constants.INDEX_BUTTON_START)); 
         buttons.put(Button.JOYSTICK_LEFT, new JoystickButton(this, Constants.INDEX_BUTTON_JOYSTICK_LEFT));
         buttons.put(Button.JOYSTICK_RIGHT, new JoystickButton(this, Constants.INDEX_BUTTON_JOYSTICK_RIGHT));
+        buttons.put(Button.TRIGGER_LEFT, new AxisButton(this, Constants.INDEX_AXIS_TRIGGER_LEFT, TRIGGER_THRESHOLD));
+        buttons.put(Button.TRIGGER_RIGHT, new AxisButton(this, Constants.INDEX_AXIS_TRIGGER_RIGHT, TRIGGER_THRESHOLD));
+        buttons.put(Button.DPAD_UP, new PovButton(this, Pov.UP));
+        buttons.put(Button.DPAD_RIGHT, new PovButton(this, Pov.RIGHT));
+        buttons.put(Button.DPAD_DOWN, new PovButton(this, Pov.DOWN));
+        buttons.put(Button.DPAD_LEFT, new PovButton(this, Pov.LEFT));
     }
 
-    public JoystickButton getButton(Button button) {
+    public edu.wpi.first.wpilibj2.command.button.Button getButton(Button button) {
         return buttons.get(button);
     }
 }
