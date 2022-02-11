@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.RobotController.Button;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.BallFinder;
 import frc.robot.subsystems.BallPickup;
 import frc.robot.subsystems.SubsystemDrive;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -26,9 +25,6 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final SubsystemDrive m_exampleSubsystem = new SubsystemDrive();
   private final BallPickup ballPickup = new BallPickup();
-
-  //Testing BallFinder
-  private final BallFinder ballFinder = new BallFinder();
 
   private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
   RobotController controller = new RobotController(0);
@@ -68,6 +64,8 @@ public class RobotContainer {
 
     controller.getButton(Button.TRIGGER_LEFT).whenReleased(new InstantCommand(
       () -> ballPickup.set(0)));
+
+      controller.getButton(Button.B).whenPressed(new ExampleCommand(m_exampleSubsystem));
   }
 
   /**
