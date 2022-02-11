@@ -6,22 +6,24 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class BallPickup extends SubsystemBase {
 
-  TalonSRX motor = new TalonSRX(0);
+    TalonSRX motor;
 
-  /** Creates a new BallPickup. */
-  public BallPickup() {
-  }
+    /**
+     * Creates a new BallPickup.
+     */
+    public BallPickup(int motorIndex) {
+        motor = new TalonSRX(motorIndex);
+    }
 
-  @Override
-  public void periodic() {
-  }
+    @Override
+    public void periodic() {
+    }
 
-  public void set(double speed) {
-    motor.set(ControlMode.PercentOutput, speed);
-  }
+    public void set(double speed) {
+        motor.set(ControlMode.PercentOutput, speed);
+    }
 }

@@ -17,9 +17,9 @@ enum Pov {
     LEFT(270),
     UP_LEFT(315);
 
-    private int angle;
+    private final int angle;
 
-    private Pov(int angle) {
+    Pov(int angle) {
         this.angle = angle;
     }
 
@@ -28,9 +28,11 @@ enum Pov {
     }
 }
 
-/** Add your docs here. */
+/**
+ * Add your docs here.
+ */
 public class PovButton extends Button {
-    public PovButton(XboxController controller, Pov pov){
+    public PovButton(XboxController controller, Pov pov) {
         super(() -> controller.getPOV() == pov.getAngle());
     }
 }

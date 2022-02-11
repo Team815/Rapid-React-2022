@@ -29,4 +29,5 @@ public final class Constants {
     public static final int INDEX_AXIS_TRIGGER_RIGHT = 3;
     public static final int INDEX_AXIS_JOYSTICK_RIGHT_X = 4;
     public static final int INDEX_AXIS_JOYSTICK_RIGHT_Y = 5;
+    public static final int INDEX_MOTOR_BALL_PICKUP = 0;
 }
