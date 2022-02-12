@@ -10,7 +10,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.RobotController.Button;
-import frc.robot.commands.AutoCommand;
+import frc.robot.commands.PickUpBall;
+import frc.robot.commands.RotateToBall;
 import frc.robot.subsystems.BallPickup;
 import frc.robot.subsystems.Drive;
 
@@ -23,7 +24,7 @@ import frc.robot.subsystems.Drive;
 public class RobotContainer {
     private final Drive drive = new Drive();
     private final BallPickup ballPickup = new BallPickup(Constants.INDEX_MOTOR_BALL_PICKUP);
-    private final AutoCommand autoCommand = new AutoCommand(drive);
+    private final RotateToBall autoCommand = new RotateToBall(drive);
     private final RobotController controller = new RobotController(0);
 
     /**
@@ -47,7 +48,7 @@ public class RobotContainer {
         controller.getButton(Button.TRIGGER_RIGHT).whenReleased(new InstantCommand(() -> ballPickup.set(0)));
         controller.getButton(Button.TRIGGER_LEFT).whenPressed(new InstantCommand(() -> ballPickup.set(-.3)));
         controller.getButton(Button.TRIGGER_LEFT).whenReleased(new InstantCommand(() -> ballPickup.set(0)));
-        controller.getButton(Button.B).whenPressed(new AutoCommand(drive));
+        controller.getButton(Button.B).whenPressed(getAutonomousCommand());
     }
 
     /**
@@ -56,6 +57,6 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return autoCommand;
+        return new RotateToBall(drive).andThen(new PickUpBall(drive, ballPickup));
     }
 }

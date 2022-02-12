@@ -10,7 +10,7 @@ import frc.robot.subsystems.Drive;
 /**
  * An example command that uses an example subsystem.
  */
-public class AutoCommand extends CommandBase {
+public class RotateToBall extends CommandBase {
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Drive drive;
 
@@ -19,7 +19,7 @@ public class AutoCommand extends CommandBase {
      *
      * @param drive The drive used by this command.
      */
-    public AutoCommand(Drive drive) {
+    public RotateToBall(Drive drive) {
         this.drive = drive;
         addRequirements(drive);
     }
