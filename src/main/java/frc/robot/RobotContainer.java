@@ -32,7 +32,7 @@ public class RobotContainer {
      */
     public RobotContainer() {
         configureButtonBindings();
-        drive.setDefaultCommand(new RunCommand(() -> drive.drive(-controller.getLeftY(), controller.getRightX()), drive));
+        drive.setDefaultCommand(new RunCommand(() -> drive.driveTelop(-controller.getLeftY(), controller.getRightX()), drive));
     }
 
     /**
@@ -42,8 +42,6 @@ public class RobotContainer {
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        controller.getButton(Button.DPAD_DOWN).whenPressed(new InstantCommand(drive::decreaseSpeedMultiplier));
-        controller.getButton(Button.DPAD_UP).whenPressed(new InstantCommand(drive::increaseSpeedMultiplier));
         controller.getButton(Button.TRIGGER_RIGHT).whenPressed(new InstantCommand(() -> ballPickup.set(.3)));
         controller.getButton(Button.TRIGGER_RIGHT).whenReleased(new InstantCommand(() -> ballPickup.set(0)));
         controller.getButton(Button.TRIGGER_LEFT).whenPressed(new InstantCommand(() -> ballPickup.set(-.3)));

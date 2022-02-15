@@ -11,6 +11,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 
 import java.time.Duration;
@@ -18,7 +19,6 @@ import java.time.Instant;
 
 public class Drive extends PIDSubsystem {
 
-    final double SPEED_MULTIPLIER_INCREMENT = 0.25;
     final double ACCELERATION_MAX = 3;
     private final NetworkTableEntry limelightX = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx");
     private final DifferentialDrive drive;
@@ -26,6 +26,7 @@ public class Drive extends PIDSubsystem {
     private double velocity = 0;
     private Instant previous = Instant.now();
     private double speedMultiplier = 1;
+    private double rotationMultiplier = 1;
 
     /**
      * Creates a new ExampleSubsystem.
@@ -45,11 +46,26 @@ public class Drive extends PIDSubsystem {
         leftGroup.setInverted(true);
         drive = new DifferentialDrive(leftGroup, rightGroup);
         setSetpoint(8);
+        SmartDashboard.putNumber("Max Speed", speedMultiplier);
+        SmartDashboard.putNumber("Max Rotation", rotationMultiplier);
+    }
+
+    @Override
+    public void periodic() {
+        super.periodic();
+        setSpeedMultiplier(SmartDashboard.getNumber("Max Speed", 1));
+        setRotationMultiplier(SmartDashboard.getNumber("Max Rotation", 1));
+        System.out.println(speedMultiplier);
+        System.out.println(rotationMultiplier);
+    }
+
+    public void driveTelop(double speed, double rotation) {
+        speed *= speedMultiplier;
+        rotation *= rotationMultiplier;
+        drive(speed, rotation);
     }
 
     public void drive(double speed, double rotation) {
-        speed *= speedMultiplier;
-        rotation *= speedMultiplier;
         var now = Instant.now();
         var delta = Duration.between(previous, now).toNanos() * 1e-9;
         var toAdd = delta * ACCELERATION_MAX;
@@ -63,12 +79,18 @@ public class Drive extends PIDSubsystem {
         previous = now;
     }
 
-    public void increaseSpeedMultiplier() {
-        speedMultiplier = Math.min(1, speedMultiplier + SPEED_MULTIPLIER_INCREMENT);
+    public void setSpeedMultiplier(double speedMultiplier) {
+        this.speedMultiplier = clamp(speedMultiplier, 0, 1);
+        SmartDashboard.putNumber("Max Speed", speedMultiplier);
     }
 
-    public void decreaseSpeedMultiplier() {
-        speedMultiplier = Math.max(SPEED_MULTIPLIER_INCREMENT, speedMultiplier - SPEED_MULTIPLIER_INCREMENT);
+    public void setRotationMultiplier(double rotationMultiplier) {
+        this.rotationMultiplier = clamp(rotationMultiplier, 0, 1);
+        SmartDashboard.putNumber("Max Rotation", rotationMultiplier);
+    }
+
+    private static double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
     }
 
     @Override
