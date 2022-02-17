@@ -8,19 +8,21 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class BallPickup extends SubsystemBase {
+public class Storage extends SubsystemBase {
 
-    TalonSRX motor;
+    private final TalonSRX motor;
 
     /**
-     * Creates a new BallPickup.
+     * Creates a new Storage.
      */
-    public BallPickup(int motorIndex) {
-        motor = new TalonSRX(motorIndex);
+    public Storage(int motorindex) {
+        motor = new TalonSRX(motorindex);
+        motor.setInverted(true);
     }
 
     @Override
     public void periodic() {
+        // This method will be called once per scheduler run
     }
 
     public void set(double speed) {

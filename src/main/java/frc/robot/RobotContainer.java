@@ -12,8 +12,9 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.RobotController.Button;
 import frc.robot.commands.PickUpBall;
 import frc.robot.commands.RotateToBall;
-import frc.robot.subsystems.BallPickup;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Pickup;
+import frc.robot.subsystems.Storage;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -23,7 +24,8 @@ import frc.robot.subsystems.Drive;
  */
 public class RobotContainer {
     private final Drive drive = new Drive();
-    private final BallPickup ballPickup = new BallPickup(Constants.INDEX_MOTOR_BALL_PICKUP);
+    private final Pickup pickup = new Pickup(Constants.INDEX_MOTOR_PICKUP);
+    private final Storage storage = new Storage(Constants.INDEX_MOTOR_STORAGE);
     private final RotateToBall autoCommand = new RotateToBall(drive);
     private final RobotController controller = new RobotController(0);
 
@@ -42,10 +44,26 @@ public class RobotContainer {
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        controller.getButton(Button.TRIGGER_RIGHT).whenPressed(new InstantCommand(() -> ballPickup.set(.3)));
-        controller.getButton(Button.TRIGGER_RIGHT).whenReleased(new InstantCommand(() -> ballPickup.set(0)));
-        controller.getButton(Button.TRIGGER_LEFT).whenPressed(new InstantCommand(() -> ballPickup.set(-.3)));
-        controller.getButton(Button.TRIGGER_LEFT).whenReleased(new InstantCommand(() -> ballPickup.set(0)));
+        final double speedPickup = 0.3;
+        final double speedStorage = 0.3;
+
+        controller.getButton(Button.TRIGGER_RIGHT).whenPressed(new InstantCommand(() -> {
+            pickup.set(speedPickup);
+            storage.set(speedStorage);
+        }));
+        controller.getButton(Button.TRIGGER_RIGHT).or(controller.getButton(Button.TRIGGER_LEFT)).whenInactive(new InstantCommand(() -> {
+            pickup.set(0);
+            storage.set(0);
+        }));
+        controller.getButton(Button.TRIGGER_LEFT).whenPressed(new InstantCommand(() -> {
+            pickup.set(-speedPickup);
+            storage.set(-speedStorage);
+        }));
+        controller.getButton(Button.A).whenPressed(new InstantCommand(() -> storage.set(speedStorage)));
+        controller.getButton(Button.A).whenReleased(new InstantCommand(() -> {
+            if (!controller.getButton(Button.TRIGGER_RIGHT).getAsBoolean())
+                storage.set(0);
+        }));
         controller.getButton(Button.B).whenPressed(getAutonomousCommand());
     }
 
@@ -55,6 +73,6 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return new RotateToBall(drive).andThen(new PickUpBall(drive, ballPickup));
+        return new RotateToBall(drive).andThen(new PickUpBall(drive, pickup));
     }
 }

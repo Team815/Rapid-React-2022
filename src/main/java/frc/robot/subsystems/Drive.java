@@ -19,11 +19,13 @@ import java.time.Instant;
 
 public class Drive extends PIDSubsystem {
 
-    final double ACCELERATION_MAX = 3;
+    final double ACCELERATION_MAX_SPEED = 3;
+    final double ACCELERATION_MAX_ROTATION = 3;
     private final NetworkTableEntry limelightX = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx");
     private final DifferentialDrive drive;
 
-    private double velocity = 0;
+    private double speed = 0;
+    private double rotation = 0;
     private Instant previous = Instant.now();
     private double speedMultiplier = 1;
     private double rotationMultiplier = 1;
@@ -46,17 +48,19 @@ public class Drive extends PIDSubsystem {
         leftGroup.setInverted(true);
         drive = new DifferentialDrive(leftGroup, rightGroup);
         setSetpoint(8);
-        SmartDashboard.putNumber("Max Speed", speedMultiplier);
-        SmartDashboard.putNumber("Max Rotation", rotationMultiplier);
+        SmartDashboard.putNumber("Drive/Max Speed", speedMultiplier);
+        SmartDashboard.putNumber("Drive/Max Rotation", rotationMultiplier);
+    }
+
+    private static double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
     }
 
     @Override
     public void periodic() {
         super.periodic();
-        setSpeedMultiplier(SmartDashboard.getNumber("Max Speed", 1));
-        setRotationMultiplier(SmartDashboard.getNumber("Max Rotation", 1));
-        System.out.println(speedMultiplier);
-        System.out.println(rotationMultiplier);
+        setSpeedMultiplier(SmartDashboard.getNumber("Drive/Max Speed", 1));
+        setRotationMultiplier(SmartDashboard.getNumber("Drive/Max Rotation", 1));
     }
 
     public void driveTelop(double speed, double rotation) {
@@ -65,32 +69,29 @@ public class Drive extends PIDSubsystem {
         drive(speed, rotation);
     }
 
-    public void drive(double speed, double rotation) {
+    public void drive(double speedIn, double rotationIn) {
         var now = Instant.now();
         var delta = Duration.between(previous, now).toNanos() * 1e-9;
-        var toAdd = delta * ACCELERATION_MAX;
-        if (speed > velocity) {
-            velocity = Math.min(speed, velocity + toAdd);
-        } else {
-            velocity = Math.max(speed, velocity - toAdd);
-        }
-        System.out.println("Offset: " + getMeasurement() + ", Rot: " + rotation);
-        drive.arcadeDrive(velocity, rotation);
+        speed = updateValue(speed, speedIn, delta * ACCELERATION_MAX_SPEED);
+        rotation = updateValue(rotation, rotationIn, delta * ACCELERATION_MAX_ROTATION);
+        drive.arcadeDrive(speed, rotation);
         previous = now;
+    }
+
+    private double updateValue(double value, double target, double maxChange) {
+        return target > value
+                ? Math.min(target, value + maxChange)
+                : Math.max(target, value - maxChange);
     }
 
     public void setSpeedMultiplier(double speedMultiplier) {
         this.speedMultiplier = clamp(speedMultiplier, 0, 1);
-        SmartDashboard.putNumber("Max Speed", speedMultiplier);
+        SmartDashboard.putNumber("Drive/Max Speed", this.speedMultiplier);
     }
 
     public void setRotationMultiplier(double rotationMultiplier) {
         this.rotationMultiplier = clamp(rotationMultiplier, 0, 1);
-        SmartDashboard.putNumber("Max Rotation", rotationMultiplier);
-    }
-
-    private static double clamp(double value, double min, double max) {
-        return Math.max(min, Math.min(max, value));
+        SmartDashboard.putNumber("Drive/Max Rotation", this.rotationMultiplier);
     }
 
     @Override
