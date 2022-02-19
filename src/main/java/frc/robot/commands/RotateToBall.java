@@ -44,6 +44,12 @@ public class RotateToBall extends CommandBase {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return Math.abs(drive.getMeasurement()) < 0.1;
+        double pidMeasurement = drive.getMeasurement() - 8;
+        System.out.println("PID Measurement: " + pidMeasurement);
+        boolean isFinished = Math.abs(pidMeasurement) < 0.1;
+        if (isFinished)
+            System.out.println("Ready to drive");
+        return isFinished;
+        //return false;
     }
 }

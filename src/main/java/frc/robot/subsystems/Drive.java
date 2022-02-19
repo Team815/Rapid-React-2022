@@ -34,7 +34,7 @@ public class Drive extends PIDSubsystem {
      * Creates a new ExampleSubsystem.
      */
     public Drive() {
-        super(new PIDController(-0.21, 0, 0));
+        super(new PIDController(-0.17, 0, 0));
         MotorControllerGroup leftGroup = new MotorControllerGroup(
                 new CANSparkMax(1, MotorType.kBrushless),
                 new CANSparkMax(2, MotorType.kBrushless),
@@ -102,6 +102,8 @@ public class Drive extends PIDSubsystem {
 
     @Override
     public double getMeasurement() {
-        return limelightX.getDouble(0);
+        double cameraX = limelightX.getDouble(0) + 8;
+        System.out.println("Camera X: " + cameraX);
+        return cameraX;
     }
 }

@@ -9,6 +9,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Pickup;
+import frc.robot.subsystems.Storage;
 
 import java.time.Instant;
 
@@ -17,23 +18,27 @@ public class PickUpBall extends CommandBase {
     private final NetworkTableEntry limelightv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv");
     Drive drive;
     Pickup pickup;
+    Storage storage;
     Instant start;
     int ballOutOfSightFrames;
 
     /**
      * Creates a new PickUpBall.
      */
-    public PickUpBall(Drive drive, Pickup pickup) {
-        this.drive = drive;
-        this.pickup = pickup;
+    public PickUpBall(Drive driveIn, Pickup pickupIn, Storage storageIn) {
+        this.drive = driveIn;
+        this.pickup = pickupIn;
+        this.storage = storageIn;
 
-        addRequirements(drive, pickup);
+
+        addRequirements(driveIn, pickupIn, storageIn);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        pickup.set(0.3);
+        pickup.set(0.4);
+        storage.set(0.4);
         start = Instant.now();
     }
 
@@ -54,6 +59,7 @@ public class PickUpBall extends CommandBase {
     public boolean isFinished() {
         boolean isVisible = limelightv.getBoolean(false);
         ballOutOfSightFrames = isVisible ? 0 : ballOutOfSightFrames + 1;
-        return ballOutOfSightFrames >= 100;
+        return ballOutOfSightFrames >= 200;
+        //return false;
     }
 }
