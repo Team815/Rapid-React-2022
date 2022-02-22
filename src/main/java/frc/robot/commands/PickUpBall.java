@@ -11,6 +11,7 @@ import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Pickup;
 import frc.robot.subsystems.Storage;
 
+import java.time.Duration;
 import java.time.Instant;
 
 public class PickUpBall extends CommandBase {
@@ -39,19 +40,22 @@ public class PickUpBall extends CommandBase {
     public void initialize() {
         pickup.set(0.4);
         storage.set(0.4);
+        drive.enable();
         start = Instant.now();
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        drive.drive(.4, 0);
+        drive.drive(.5, drive.getPidRotation());
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
         pickup.set(0);
+        storage.set(0);
+        drive.disable();
     }
 
     // Returns true when the command should end.
@@ -59,7 +63,7 @@ public class PickUpBall extends CommandBase {
     public boolean isFinished() {
         boolean isVisible = limelightv.getBoolean(false);
         ballOutOfSightFrames = isVisible ? 0 : ballOutOfSightFrames + 1;
-        return ballOutOfSightFrames >= 200;
-        //return false;
+        //return ballOutOfSightFrames >= 10;
+        return Duration.between(start, Instant.now()).toSeconds() >= 3;
     }
 }

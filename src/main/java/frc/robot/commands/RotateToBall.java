@@ -33,6 +33,7 @@ public class RotateToBall extends CommandBase {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
+        drive.drive(0, drive.getPidRotation());
     }
 
     // Called once the command ends or is interrupted.
@@ -44,12 +45,7 @@ public class RotateToBall extends CommandBase {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        double pidMeasurement = drive.getMeasurement() - 8;
-        System.out.println("PID Measurement: " + pidMeasurement);
-        boolean isFinished = Math.abs(pidMeasurement) < 0.1;
-        if (isFinished)
-            System.out.println("Ready to drive");
-        return isFinished;
-        //return false;
+        double pidMeasurement = drive.getMeasurement();
+        return Math.abs(pidMeasurement) < 2;
     }
 }

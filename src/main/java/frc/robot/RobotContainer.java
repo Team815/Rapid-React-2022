@@ -14,6 +14,7 @@ import frc.robot.commands.PickUpBall;
 import frc.robot.commands.RotateToBall;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Pickup;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Storage;
 
 /**
@@ -26,6 +27,7 @@ public class RobotContainer {
     private final Drive drive = new Drive();
     private final Pickup pickup = new Pickup(Constants.INDEX_MOTOR_PICKUP);
     private final Storage storage = new Storage(Constants.INDEX_MOTOR_STORAGE);
+    private final Shooter shooter = new Shooter(Constants.INDEX_MOTOR_FEEDER);
     private final RotateToBall autoCommand = new RotateToBall(drive);
     private final RobotController controller = new RobotController(0);
 
@@ -59,8 +61,12 @@ public class RobotContainer {
             pickup.set(-speedPickup);
             storage.set(-speedStorage);
         }));
-        controller.getButton(Button.A).whenPressed(new InstantCommand(() -> storage.set(speedStorage)));
+        controller.getButton(Button.A).whenPressed(new InstantCommand(() -> {
+            storage.set(speedStorage);
+            shooter.shoot();
+        }));
         controller.getButton(Button.A).whenReleased(new InstantCommand(() -> {
+            shooter.stop();
             if (!controller.getButton(Button.TRIGGER_RIGHT).getAsBoolean())
                 storage.set(0);
         }));

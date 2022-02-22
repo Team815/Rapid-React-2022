@@ -31,4 +31,6 @@ public final class Constants {
     public static final int INDEX_AXIS_JOYSTICK_RIGHT_Y = 5;
     public static final int INDEX_MOTOR_PICKUP = 0;
     public static final int INDEX_MOTOR_STORAGE = 1;
+    public static final int INDEX_MOTOR_FEEDER = 2;
+
 }

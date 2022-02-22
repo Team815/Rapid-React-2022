@@ -29,12 +29,13 @@ public class Drive extends PIDSubsystem {
     private Instant previous = Instant.now();
     private double speedMultiplier = 1;
     private double rotationMultiplier = 1;
+    private double pidRotation = 0;
 
     /**
      * Creates a new ExampleSubsystem.
      */
     public Drive() {
-        super(new PIDController(-0.17, 0, 0));
+        super(new PIDController(-0.1, 0, 0));
         MotorControllerGroup leftGroup = new MotorControllerGroup(
                 new CANSparkMax(1, MotorType.kBrushless),
                 new CANSparkMax(2, MotorType.kBrushless),
@@ -47,7 +48,6 @@ public class Drive extends PIDSubsystem {
         );
         leftGroup.setInverted(true);
         drive = new DifferentialDrive(leftGroup, rightGroup);
-        setSetpoint(8);
         SmartDashboard.putNumber("Drive/Max Speed", speedMultiplier);
         SmartDashboard.putNumber("Drive/Max Rotation", rotationMultiplier);
     }
@@ -96,14 +96,17 @@ public class Drive extends PIDSubsystem {
 
     @Override
     protected void useOutput(double output, double setpoint) {
-        output = Math.min(0.3, Math.abs(output)) * Math.signum(output);
-        drive(0, output);
+        pidRotation = Math.min(0.3, Math.abs(output)) * Math.signum(output);
     }
 
     @Override
     public double getMeasurement() {
-        double cameraX = limelightX.getDouble(0) + 8;
-        System.out.println("Camera X: " + cameraX);
-        return cameraX;
+        var measurement = limelightX.getDouble(0);
+        System.out.println(measurement);
+        return measurement;
+    }
+
+    public double getPidRotation() {
+        return pidRotation;
     }
 }
