@@ -49,28 +49,58 @@ public class RobotContainer {
         final double speedPickup = 0.3;
         final double speedStorage = 0.3;
 
-        controller.getButton(Button.TRIGGER_RIGHT).whenPressed(new InstantCommand(() -> {
-            pickup.set(speedPickup);
-            storage.set(speedStorage);
+        var buttonPickup = controller.getButton(Button.TRIGGER_RIGHT);
+        var buttonDrop = controller.getButton(Button.TRIGGER_LEFT);
+        var buttonShoot = controller.getButton(Button.A);
+
+        buttonPickup.whenPressed(new InstantCommand(() -> {
+            if (!buttonDrop.getAsBoolean()) {
+                pickup.set(speedPickup);
+                storage.set(speedStorage);
+            }
         }));
-        controller.getButton(Button.TRIGGER_RIGHT).or(controller.getButton(Button.TRIGGER_LEFT)).whenInactive(new InstantCommand(() -> {
-            pickup.set(0);
-            storage.set(0);
+        buttonPickup.whenReleased(new InstantCommand(() -> {
+            if (!buttonDrop.getAsBoolean()) {
+                pickup.set(0);
+                if (!controller.getRawButton(Constants.INDEX_BUTTON_A)) {
+                    System.out.println("stop");
+                    storage.set(0);
+                }
+            }
         }));
-        controller.getButton(Button.TRIGGER_LEFT).whenPressed(new InstantCommand(() -> {
+        buttonDrop.whenPressed(new InstantCommand(() -> {
             pickup.set(-speedPickup);
             storage.set(-speedStorage);
         }));
-        controller.getButton(Button.A).whenPressed(new InstantCommand(() -> {
-            storage.set(speedStorage);
-            shooter.shoot();
+        buttonDrop.whenReleased(new InstantCommand(() -> {
+            if (buttonPickup.getAsBoolean()) {
+                pickup.set(speedPickup);
+                storage.set(speedStorage);
+            } else {
+                pickup.set(0);
+                if (controller.getRawButton(Constants.INDEX_BUTTON_A)) {
+                    storage.set(speedStorage);
+                } else {
+                    storage.set(0);
+                }
+            }
         }));
-        controller.getButton(Button.A).whenReleased(new InstantCommand(() -> {
+        buttonShoot.whenPressed(new InstantCommand(() -> {
+            shooter.shoot();
+            if (!buttonDrop.getAsBoolean()) {
+                storage.set(speedStorage);
+            }
+        }));
+        buttonShoot.whenReleased(new InstantCommand(() -> {
             shooter.stop();
-            if (!controller.getButton(Button.TRIGGER_RIGHT).getAsBoolean())
+            if (buttonDrop.getAsBoolean()) {
+                storage.set(-speedStorage);
+            } else if (!buttonPickup.getAsBoolean()) {
                 storage.set(0);
+            }
         }));
         controller.getButton(Button.B).whenPressed(getAutonomousCommand());
+        controller.getButton(Button.Y).whenPressed(new InstantCommand(() -> System.out.println(controller.getButton(Button.X).getAsBoolean())));
     }
 
     /**
