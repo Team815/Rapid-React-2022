@@ -4,13 +4,21 @@
 
 package frc.robot;
 
+import java.util.Set;
+
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.RobotController.Button;
 import frc.robot.commands.PickUpBall;
+import frc.robot.commands.RotateDegrees;
 import frc.robot.commands.RotateToBall;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Pickup;
@@ -28,7 +36,7 @@ public class RobotContainer {
     private final Pickup pickup = new Pickup(Constants.INDEX_MOTOR_PICKUP);
     private final Storage storage = new Storage(Constants.INDEX_MOTOR_STORAGE);
     private final Shooter shooter = new Shooter(Constants.INDEX_MOTOR_FEEDER);
-    private final RotateToBall autoCommand = new RotateToBall(drive);
+    private final AHRS gyro = new AHRS(SerialPort.Port.kUSB); 
     private final RobotController controller = new RobotController(0);
 
     /**
@@ -51,7 +59,7 @@ public class RobotContainer {
 
         var buttonPickup = controller.getButton(Button.TRIGGER_RIGHT);
         var buttonDrop = controller.getButton(Button.TRIGGER_LEFT);
-        var buttonShoot = controller.getButton(Button.A);
+        var buttonShoot = (JoystickButton)controller.getButton(Button.A);
 
         buttonPickup.whenPressed(new InstantCommand(() -> {
             if (!buttonDrop.getAsBoolean()) {
@@ -62,7 +70,7 @@ public class RobotContainer {
         buttonPickup.whenReleased(new InstantCommand(() -> {
             if (!buttonDrop.getAsBoolean()) {
                 pickup.set(0);
-                if (!controller.getRawButton(Constants.INDEX_BUTTON_A)) {
+                if (!buttonShoot.get()) {
                     System.out.println("stop");
                     storage.set(0);
                 }
@@ -78,7 +86,7 @@ public class RobotContainer {
                 storage.set(speedStorage);
             } else {
                 pickup.set(0);
-                if (controller.getRawButton(Constants.INDEX_BUTTON_A)) {
+                if (buttonShoot.get()) {
                     storage.set(speedStorage);
                 } else {
                     storage.set(0);
@@ -99,7 +107,7 @@ public class RobotContainer {
                 storage.set(0);
             }
         }));
-        controller.getButton(Button.B).whenPressed(getAutonomousCommand());
+        controller.getButton(Button.B).whenHeld(new RotateToBall(drive, () -> controller.getLeftY()));
         controller.getButton(Button.Y).whenPressed(new InstantCommand(() -> System.out.println(controller.getButton(Button.X).getAsBoolean())));
     }
 
@@ -109,6 +117,12 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return new RotateToBall(drive).andThen(new PickUpBall(drive, pickup, storage));
+        return new RotateToBall(drive, () -> 0)
+        .andThen(new PickUpBall(drive, pickup, storage))
+        .andThen(new RotateDegrees(drive, 180, () -> gyro.getAngle()))
+        .andThen(new InstantCommand(() -> {
+            shooter.shoot();
+            storage.set(0.3);
+        }));
     }
 }

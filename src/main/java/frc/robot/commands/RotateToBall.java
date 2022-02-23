@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drive;
 
@@ -13,14 +15,16 @@ import frc.robot.subsystems.Drive;
 public class RotateToBall extends CommandBase {
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Drive drive;
+    private final DoubleSupplier speedSupplier;
 
     /**
      * Creates a new ExampleCommand.
      *
      * @param drive The drive used by this command.
      */
-    public RotateToBall(Drive drive) {
+    public RotateToBall(Drive drive, DoubleSupplier speedSupplier) {
         this.drive = drive;
+        this.speedSupplier = speedSupplier;
         addRequirements(drive);
     }
 
@@ -33,7 +37,7 @@ public class RotateToBall extends CommandBase {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        drive.drive(0, drive.getPidRotation());
+        drive.drive(speedSupplier.getAsDouble(), drive.getPidRotation());
     }
 
     // Called once the command ends or is interrupted.

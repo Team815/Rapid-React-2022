@@ -64,6 +64,6 @@ public class PickUpBall extends CommandBase {
         boolean isVisible = limelightv.getBoolean(false);
         ballOutOfSightFrames = isVisible ? 0 : ballOutOfSightFrames + 1;
         //return ballOutOfSightFrames >= 10;
-        return Duration.between(start, Instant.now()).toSeconds() >= 3;
+        return Duration.between(start, Instant.now()).toMillis() >= 1700;
     }
 }
