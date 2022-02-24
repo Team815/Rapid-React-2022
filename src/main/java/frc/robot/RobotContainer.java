@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.RobotController.Button;
+import frc.robot.commands.CenterOnTarget;
 import frc.robot.commands.PickUpBall;
 import frc.robot.commands.RotateDegrees;
 import frc.robot.commands.RotateToBall;
@@ -108,7 +109,8 @@ public class RobotContainer {
             }
         }));
         controller.getButton(Button.B).whenHeld(new RotateToBall(drive, () -> controller.getLeftY()));
-        controller.getButton(Button.Y).whenPressed(new InstantCommand(() -> System.out.println(controller.getButton(Button.X).getAsBoolean())));
+        controller.getButton(Button.Y).whenPressed(new CenterOnTarget(drive));
+        //controller.getButton(Button.Y).whenPressed(new InstantCommand(() -> System.out.println(controller.getButton(Button.X).getAsBoolean())));
     }
 
     /**
@@ -120,6 +122,7 @@ public class RobotContainer {
         return new RotateToBall(drive, () -> 0)
         .andThen(new PickUpBall(drive, pickup, storage))
         .andThen(new RotateDegrees(drive, 180, () -> gyro.getAngle()))
+        .andThen(new CenterOnTarget(drive))
         .andThen(new InstantCommand(() -> {
             shooter.shoot();
             storage.set(0.3);
