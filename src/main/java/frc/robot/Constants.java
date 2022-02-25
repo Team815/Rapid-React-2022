@@ -23,14 +23,17 @@ public final class Constants {
     public static final int INDEX_BUTTON_START = 8;
     public static final int INDEX_BUTTON_JOYSTICK_LEFT = 9;
     public static final int INDEX_BUTTON_JOYSTICK_RIGHT = 10;
+
     public static final int INDEX_AXIS_JOYSTICK_LEFT_X = 0;
     public static final int INDEX_AXIS_JOYSTICK_LEFT_Y = 1;
     public static final int INDEX_AXIS_TRIGGER_LEFT = 2;
     public static final int INDEX_AXIS_TRIGGER_RIGHT = 3;
     public static final int INDEX_AXIS_JOYSTICK_RIGHT_X = 4;
     public static final int INDEX_AXIS_JOYSTICK_RIGHT_Y = 5;
+
     public static final int INDEX_MOTOR_PICKUP = 0;
     public static final int INDEX_MOTOR_STORAGE = 1;
     public static final int INDEX_MOTOR_FEEDER = 2;
-
+    public static final int INDEX_MOTOR_SHOOTER_1 = 3;
+    public static final int INDEX_MOTOR_SHOOTER_2 = 4;
 }

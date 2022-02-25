@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.util.Set;
-
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.GenericHID;
@@ -14,17 +12,13 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.RobotController.Button;
 import frc.robot.commands.CenterOnTarget;
 import frc.robot.commands.PickUpBall;
 import frc.robot.commands.RotateDegrees;
 import frc.robot.commands.RotateToBall;
-import frc.robot.subsystems.Drive;
-import frc.robot.subsystems.Pickup;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Storage;
+import frc.robot.subsystems.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -36,7 +30,8 @@ public class RobotContainer {
     private final Drive drive = new Drive();
     private final Pickup pickup = new Pickup(Constants.INDEX_MOTOR_PICKUP);
     private final Storage storage = new Storage(Constants.INDEX_MOTOR_STORAGE);
-    private final Shooter shooter = new Shooter(Constants.INDEX_MOTOR_FEEDER);
+    private final Feeder feeder = new Feeder(Constants.INDEX_MOTOR_FEEDER);
+    private final Shooter shooter = new Shooter(Constants.INDEX_MOTOR_SHOOTER_1, Constants.INDEX_MOTOR_SHOOTER_2);
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB); 
     private final RobotController controller = new RobotController(0);
 
@@ -95,12 +90,14 @@ public class RobotContainer {
             }
         }));
         buttonShoot.whenPressed(new InstantCommand(() -> {
+            feeder.shoot();
             shooter.shoot();
             if (!buttonDrop.getAsBoolean()) {
                 storage.set(speedStorage);
             }
         }));
         buttonShoot.whenReleased(new InstantCommand(() -> {
+            feeder.stop();
             shooter.stop();
             if (buttonDrop.getAsBoolean()) {
                 storage.set(-speedStorage);
@@ -124,7 +121,7 @@ public class RobotContainer {
         .andThen(new RotateDegrees(drive, 180, () -> gyro.getAngle()))
         .andThen(new CenterOnTarget(drive))
         .andThen(new InstantCommand(() -> {
-            shooter.shoot();
+            feeder.shoot();
             storage.set(0.3);
         }));
     }

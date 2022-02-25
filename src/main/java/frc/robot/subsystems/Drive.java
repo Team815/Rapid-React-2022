@@ -48,8 +48,8 @@ public class Drive extends PIDSubsystem {
         );
         leftGroup.setInverted(true);
         drive = new DifferentialDrive(leftGroup, rightGroup);
-        SmartDashboard.putNumber("Drive/Max Speed", speedMultiplier);
-        SmartDashboard.putNumber("Drive/Max Rotation", rotationMultiplier);
+        SmartDashboard.putNumber("Max Speed", speedMultiplier);
+        SmartDashboard.putNumber("Max Rotation", rotationMultiplier);
     }
 
     private static double clamp(double value, double min, double max) {
@@ -59,8 +59,8 @@ public class Drive extends PIDSubsystem {
     @Override
     public void periodic() {
         super.periodic();
-        setSpeedMultiplier(SmartDashboard.getNumber("Drive/Max Speed", 1));
-        setRotationMultiplier(SmartDashboard.getNumber("Drive/Max Rotation", 1));
+        setSpeedMultiplier(SmartDashboard.getNumber("Max Speed", 1));
+        setRotationMultiplier(SmartDashboard.getNumber("Max Rotation", 1));
     }
 
     public void driveTelop(double speed, double rotation) {
@@ -86,12 +86,12 @@ public class Drive extends PIDSubsystem {
 
     public void setSpeedMultiplier(double speedMultiplier) {
         this.speedMultiplier = clamp(speedMultiplier, 0, 1);
-        SmartDashboard.putNumber("Drive/Max Speed", this.speedMultiplier);
+        SmartDashboard.putNumber("Max Speed", this.speedMultiplier);
     }
 
     public void setRotationMultiplier(double rotationMultiplier) {
         this.rotationMultiplier = clamp(rotationMultiplier, 0, 1);
-        SmartDashboard.putNumber("Drive/Max Rotation", this.rotationMultiplier);
+        SmartDashboard.putNumber("Max Rotation", this.rotationMultiplier);
     }
 
     @Override
