@@ -15,12 +15,8 @@ public class Feeder extends SubsystemBase {
     feeder = new TalonSRX(feederIndex);
   }
 
-  public void shoot() {
-    feeder.set(ControlMode.PercentOutput, 0.3);
-  }
-
-  public void stop() {
-    feeder.set(ControlMode.PercentOutput, 0);
+  public void set(double speed) {
+    feeder.set(ControlMode.PercentOutput, speed);
   }
 
   @Override

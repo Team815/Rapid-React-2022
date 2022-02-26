@@ -14,10 +14,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.RobotController.Button;
-import frc.robot.commands.CenterOnTarget;
-import frc.robot.commands.PickUpBall;
-import frc.robot.commands.RotateDegrees;
-import frc.robot.commands.RotateToBall;
+import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 
 /**
@@ -89,15 +86,19 @@ public class RobotContainer {
                 }
             }
         }));
-        buttonShoot.whenPressed(new InstantCommand(() -> {
-            feeder.shoot();
+        buttonShoot.whileHeld(new InstantCommand(() -> {
             shooter.shoot();
+            if (shooter.atSpeed()) {
+                feeder.set(0.3);
+            } else {
+                feeder.set(0);
+            }
             if (!buttonDrop.getAsBoolean()) {
                 storage.set(speedStorage);
             }
         }));
         buttonShoot.whenReleased(new InstantCommand(() -> {
-            feeder.stop();
+            feeder.set(0);
             shooter.stop();
             if (buttonDrop.getAsBoolean()) {
                 storage.set(-speedStorage);
@@ -105,9 +106,8 @@ public class RobotContainer {
                 storage.set(0);
             }
         }));
-        controller.getButton(Button.B).whenHeld(new RotateToBall(drive, () -> controller.getLeftY()));
+        controller.getButton(Button.B).whenHeld(new TrackBall(drive, controller::getLeftY));
         controller.getButton(Button.Y).whenPressed(new CenterOnTarget(drive));
-        //controller.getButton(Button.Y).whenPressed(new InstantCommand(() -> System.out.println(controller.getButton(Button.X).getAsBoolean())));
     }
 
     /**
@@ -118,10 +118,10 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return new RotateToBall(drive, () -> 0)
         .andThen(new PickUpBall(drive, pickup, storage))
-        .andThen(new RotateDegrees(drive, 180, () -> gyro.getAngle()))
+        .andThen(new RotateDegrees(drive, 180, gyro::getAngle))
         .andThen(new CenterOnTarget(drive))
         .andThen(new InstantCommand(() -> {
-            feeder.shoot();
+            feeder.set(0.3);
             storage.set(0.3);
         }));
     }
