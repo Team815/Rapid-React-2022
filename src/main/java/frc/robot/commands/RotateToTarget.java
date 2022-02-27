@@ -4,15 +4,15 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import frc.robot.subsystems.Drive;
 
 import java.util.function.DoubleSupplier;
 
-public class RotateToBall extends TrackBall {
+public class RotateToTarget extends TrackTarget {
   /** Creates a new RotateToBall. */
-  public RotateToBall(Drive drive, DoubleSupplier speedSupplier) {
-    super(drive, speedSupplier);
+  public RotateToTarget(Drive drive, DoubleSupplier speedSupplier, NetworkTableEntry entry) {
+    super(drive, speedSupplier, entry);
   }
 
   @Override

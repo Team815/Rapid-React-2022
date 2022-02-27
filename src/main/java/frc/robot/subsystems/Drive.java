@@ -21,7 +21,7 @@ public class Drive extends PIDSubsystem {
 
     final double ACCELERATION_MAX_SPEED = 3;
     final double ACCELERATION_MAX_ROTATION = 3;
-    private final NetworkTableEntry limelightX = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx");
+    private NetworkTableEntry limelightX = NetworkTableInstance.getDefault().getTable("limelight-balls").getEntry("tx");
     private final DifferentialDrive drive;
 
     private double speed = 0;
@@ -108,5 +108,9 @@ public class Drive extends PIDSubsystem {
 
     public double getPidRotation() {
         return pidRotation;
+    }
+
+    public void setEntry(NetworkTableEntry entry) {
+        limelightX = entry;
     }
 }

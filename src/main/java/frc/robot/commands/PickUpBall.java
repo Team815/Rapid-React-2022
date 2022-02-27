@@ -7,6 +7,7 @@ package frc.robot.commands;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Pickup;
 import frc.robot.subsystems.Storage;
@@ -14,23 +15,22 @@ import frc.robot.subsystems.Storage;
 import java.time.Duration;
 import java.time.Instant;
 
-public class PickUpBall extends CommandBase {
+public class PickUpBall extends WaitCommand {
 
-    private final NetworkTableEntry limelightv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv");
+    private final NetworkTableEntry limelightv = NetworkTableInstance.getDefault().getTable("limelight-balls").getEntry("tv");
     Drive drive;
     Pickup pickup;
     Storage storage;
-    Instant start;
     int ballOutOfSightFrames;
 
     /**
      * Creates a new PickUpBall.
      */
-    public PickUpBall(Drive driveIn, Pickup pickupIn, Storage storageIn) {
+    public PickUpBall(Drive driveIn, Pickup pickupIn, Storage storageIn, double duration) {
+        super(duration);
         this.drive = driveIn;
         this.pickup = pickupIn;
         this.storage = storageIn;
-
 
         addRequirements(driveIn, pickupIn, storageIn);
     }
@@ -38,10 +38,10 @@ public class PickUpBall extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
+        super.initialize();
         pickup.set(0.4);
         storage.set(0.4);
         drive.enable();
-        start = Instant.now();
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -53,17 +53,17 @@ public class PickUpBall extends CommandBase {
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
+        super.end(interrupted);
         pickup.set(0);
         storage.set(0);
         drive.disable();
     }
 
     // Returns true when the command should end.
-    @Override
-    public boolean isFinished() {
-        boolean isVisible = limelightv.getBoolean(false);
-        ballOutOfSightFrames = isVisible ? 0 : ballOutOfSightFrames + 1;
-        //return ballOutOfSightFrames >= 10;
-        return Duration.between(start, Instant.now()).toMillis() >= 1700;
-    }
+//    @Override
+//    public boolean isFinished() {
+//        boolean isVisible = limelightv.getBoolean(false);
+//        ballOutOfSightFrames = isVisible ? 0 : ballOutOfSightFrames + 1;
+//        return false;
+//    }
 }

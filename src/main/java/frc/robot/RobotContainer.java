@@ -86,29 +86,41 @@ public class RobotContainer {
                 }
             }
         }));
-        buttonShoot.whenPressed(new InstantCommand(shooter::shoot));
-        buttonShoot.whileHeld(new InstantCommand(() -> {
-            if (!buttonDrop.getAsBoolean()) {
-                if (shooter.atSpeed()) {
-                    feeder.set(0.3);
-                    storage.set(speedStorage);
-                } else {
-                    feeder.set(0);
-                    storage.set(0);
-                }
-            }
-        }));
-        buttonShoot.whenReleased(new InstantCommand(() -> {
-            feeder.set(0);
-            shooter.stop();
-            if (buttonDrop.getAsBoolean()) {
-                storage.set(-speedStorage);
-            } else if (!buttonPickup.getAsBoolean()) {
-                storage.set(0);
-            }
-        }));
-        controller.getButton(Button.B).whenHeld(new TrackBall(drive, controller::getLeftY));
-        controller.getButton(Button.Y).whenPressed(new CenterOnTarget(drive));
+        buttonShoot.whenHeld(new Shoot(
+                storage,
+                feeder,
+                shooter,
+                buttonPickup,
+                buttonDrop,
+                1000));
+//        buttonShoot.whileHeld(new InstantCommand(() -> {
+//            if (!buttonDrop.getAsBoolean()) {
+//                if (shooter.atSpeed()) {
+//                    feeder.set(0.3);
+//                    storage.set(speedStorage);
+//                } else {
+//                    feeder.set(0);
+//                    storage.set(0);
+//                }
+//            }
+//        }));
+//        buttonShoot.whenReleased(new InstantCommand(() -> {
+//            feeder.set(0);
+//            shooter.stop();
+//            if (buttonDrop.getAsBoolean()) {
+//                storage.set(-speedStorage);
+//            } else if (!buttonPickup.getAsBoolean()) {
+//                storage.set(0);
+//            }
+//        }));
+        controller.getButton(Button.B).whenHeld(new TrackTarget(
+                drive,
+                () -> -controller.getLeftY(),
+                Limelight.limelightBall.getX()));
+        controller.getButton(Button.Y).whenHeld(new TrackTarget(
+                drive,
+                () -> -controller.getLeftY(),
+                Limelight.limelightHub.getX()));
     }
 
     /**
@@ -117,13 +129,10 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return new RotateToBall(drive, () -> 0)
-        .andThen(new PickUpBall(drive, pickup, storage))
+        return new RotateToTarget(drive, () -> 0, Limelight.limelightBall.getX())
+        .andThen(new PickUpBall(drive, pickup, storage, 1.7))
         .andThen(new RotateDegrees(drive, 180, gyro::getAngle))
-        .andThen(new CenterOnTarget(drive))
-        .andThen(new InstantCommand(() -> {
-            feeder.set(0.3);
-            storage.set(0.3);
-        }));
+        .andThen(new RotateToTarget(drive, () -> 0, Limelight.limelightHub.getX()))
+        .andThen(new Shoot(storage, feeder, shooter, () -> false, () -> false, 3));
     }
 }
