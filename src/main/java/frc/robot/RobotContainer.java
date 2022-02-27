@@ -86,15 +86,16 @@ public class RobotContainer {
                 }
             }
         }));
+        buttonShoot.whenPressed(new InstantCommand(shooter::shoot));
         buttonShoot.whileHeld(new InstantCommand(() -> {
-            shooter.shoot();
-            if (shooter.atSpeed()) {
-                feeder.set(0.3);
-            } else {
-                feeder.set(0);
-            }
             if (!buttonDrop.getAsBoolean()) {
-                storage.set(speedStorage);
+                if (shooter.atSpeed()) {
+                    feeder.set(0.3);
+                    storage.set(speedStorage);
+                } else {
+                    feeder.set(0);
+                    storage.set(0);
+                }
             }
         }));
         buttonShoot.whenReleased(new InstantCommand(() -> {
