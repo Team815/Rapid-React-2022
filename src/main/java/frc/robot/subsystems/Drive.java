@@ -7,8 +7,6 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -21,7 +19,6 @@ public class Drive extends PIDSubsystem {
 
     final double ACCELERATION_MAX_SPEED = 3;
     final double ACCELERATION_MAX_ROTATION = 3;
-    private final NetworkTableEntry limelightX = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx");
     private final DifferentialDrive drive;
 
     private double speed = 0;
@@ -30,12 +27,14 @@ public class Drive extends PIDSubsystem {
     private double speedMultiplier = 1;
     private double rotationMultiplier = 1;
     private double pidRotation = 0;
+    private Limelight limelight;
 
     /**
      * Creates a new ExampleSubsystem.
      */
-    public Drive() {
+    public Drive(Limelight limelight) {
         super(new PIDController(-0.1, 0, 0));
+        this.limelight = limelight;
         MotorControllerGroup leftGroup = new MotorControllerGroup(
                 new CANSparkMax(1, MotorType.kBrushless),
                 new CANSparkMax(2, MotorType.kBrushless),
@@ -101,7 +100,7 @@ public class Drive extends PIDSubsystem {
 
     @Override
     public double getMeasurement() {
-        var measurement = limelightX.getDouble(0);
+        var measurement = limelight.bottomLimelight.getX();
         System.out.println(measurement);
         return measurement;
     }

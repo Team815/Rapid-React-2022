@@ -4,10 +4,9 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Pickup;
 import frc.robot.subsystems.Storage;
 
@@ -16,8 +15,8 @@ import java.time.Instant;
 
 public class PickUpBall extends CommandBase {
 
-    private final NetworkTableEntry limelightv = NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv");
     Drive drive;
+    Limelight limelight;
     Pickup pickup;
     Storage storage;
     Instant start;
@@ -26,13 +25,13 @@ public class PickUpBall extends CommandBase {
     /**
      * Creates a new PickUpBall.
      */
-    public PickUpBall(Drive driveIn, Pickup pickupIn, Storage storageIn) {
-        this.drive = driveIn;
-        this.pickup = pickupIn;
-        this.storage = storageIn;
+    public PickUpBall(Drive drive, Pickup pickup, Storage storage, Limelight limelight) {
+        this.drive = drive;
+        this.pickup = pickup;
+        this.storage = storage;
+        this.limelight = limelight;
 
-
-        addRequirements(driveIn, pickupIn, storageIn);
+        addRequirements(drive, pickup, storage, limelight);
     }
 
     // Called when the command is initially scheduled.
@@ -61,8 +60,7 @@ public class PickUpBall extends CommandBase {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        boolean isVisible = limelightv.getBoolean(false);
-        ballOutOfSightFrames = isVisible ? 0 : ballOutOfSightFrames + 1;
+        ballOutOfSightFrames = limelight.bottomLimelight.seesTarget() ? 0 : ballOutOfSightFrames + 1;
         //return ballOutOfSightFrames >= 10;
         return Duration.between(start, Instant.now()).toMillis() >= 1700;
     }

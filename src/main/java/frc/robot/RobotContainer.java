@@ -24,7 +24,8 @@ import frc.robot.subsystems.*;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-    private final Drive drive = new Drive();
+    private final Limelight limelight = new Limelight();
+    private final Drive drive = new Drive(limelight);
     private final Pickup pickup = new Pickup(Constants.INDEX_MOTOR_PICKUP);
     private final Storage storage = new Storage(Constants.INDEX_MOTOR_STORAGE);
     private final Feeder feeder = new Feeder(Constants.INDEX_MOTOR_FEEDER);
@@ -49,6 +50,9 @@ public class RobotContainer {
     private void configureButtonBindings() {
         final double speedPickup = 0.3;
         final double speedStorage = 0.3;
+
+        limelight.bottomLimelight.setPipeline(GamePiece.BLUE_BALL);
+        limelight.topLimelight.setPipeline(GamePiece.SHOOTING_TARGET);
 
         var buttonPickup = controller.getButton(Button.TRIGGER_RIGHT);
         var buttonDrop = controller.getButton(Button.TRIGGER_LEFT);
@@ -107,7 +111,7 @@ public class RobotContainer {
             }
         }));
         controller.getButton(Button.B).whenHeld(new TrackBall(drive, controller::getLeftY));
-        controller.getButton(Button.Y).whenPressed(new CenterOnTarget(drive));
+        controller.getButton(Button.Y).whenPressed(new CenterOnTarget(drive, limelight));
     }
 
     /**
@@ -117,9 +121,9 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         return new RotateToBall(drive, () -> 0)
-        .andThen(new PickUpBall(drive, pickup, storage))
+        .andThen(new PickUpBall(drive, pickup, storage, limelight))
         .andThen(new RotateDegrees(drive, 180, gyro::getAngle))
-        .andThen(new CenterOnTarget(drive))
+        .andThen(new CenterOnTarget(drive, limelight))
         .andThen(new InstantCommand(() -> {
             feeder.set(0.3);
             storage.set(0.3);
