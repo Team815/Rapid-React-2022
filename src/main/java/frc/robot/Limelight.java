@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot;
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
@@ -6,7 +6,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import frc.robot.GamePiece;
 
 /** Add your docs here. */
 public class Limelight {
@@ -14,7 +13,7 @@ public class Limelight {
     public static final Limelight limelightBall = new Limelight("limelight-balls");
     public static final Limelight limelightHub = new Limelight("limelight-hub");
 
-    private NetworkTable networkTable;
+    private final NetworkTable networkTable;
 
     private Limelight(String instance) {
         networkTable = NetworkTableInstance.getDefault().getTable(instance);

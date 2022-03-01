@@ -4,66 +4,36 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Pickup;
 import frc.robot.subsystems.Storage;
 
-import java.time.Duration;
-import java.time.Instant;
+public class PickUpBall extends CommandBase {
 
-public class PickUpBall extends WaitCommand {
-
-    private final NetworkTableEntry limelightv = NetworkTableInstance.getDefault().getTable("limelight-balls").getEntry("tv");
-    Drive drive;
     Pickup pickup;
     Storage storage;
-    int ballOutOfSightFrames;
 
     /**
      * Creates a new PickUpBall.
      */
-    public PickUpBall(Drive driveIn, Pickup pickupIn, Storage storageIn, double duration) {
-        super(duration);
-        this.drive = driveIn;
-        this.pickup = pickupIn;
-        this.storage = storageIn;
+    public PickUpBall(Pickup pickup, Storage storage) {
+        this.pickup = pickup;
+        this.storage = storage;
 
-        addRequirements(driveIn, pickupIn, storageIn);
+        addRequirements(pickup, storage);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        super.initialize();
         pickup.set(0.4);
         storage.set(0.4);
-        drive.enable();
-    }
-
-    // Called every time the scheduler runs while the command is scheduled.
-    @Override
-    public void execute() {
-        drive.drive(.5, drive.getPidRotation());
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        super.end(interrupted);
         pickup.set(0);
         storage.set(0);
-        drive.disable();
     }
-
-    // Returns true when the command should end.
-//    @Override
-//    public boolean isFinished() {
-//        boolean isVisible = limelightv.getBoolean(false);
-//        ballOutOfSightFrames = isVisible ? 0 : ballOutOfSightFrames + 1;
-//        return false;
-//    }
 }

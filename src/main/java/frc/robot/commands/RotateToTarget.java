@@ -5,19 +5,32 @@
 package frc.robot.commands;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
-import frc.robot.subsystems.Drive;
+import frc.robot.subsystems.Drivesystem;
 
 import java.util.function.DoubleSupplier;
 
 public class RotateToTarget extends TrackTarget {
+  private int zeroCount = 0;
+
   /** Creates a new RotateToBall. */
-  public RotateToTarget(Drive drive, DoubleSupplier speedSupplier, NetworkTableEntry entry) {
-    super(drive, speedSupplier, entry);
+  public RotateToTarget(Drivesystem drivesystem, DoubleSupplier speedSupplier, NetworkTableEntry entry) {
+    super(drivesystem, speedSupplier, entry);
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    super.end(interrupted);
   }
 
   @Override
   public boolean isFinished() {
-    double pidMeasurement = drive.getMeasurement();
-    return Math.abs(pidMeasurement) < 2;
+    var rotation = drivesystem.getPidRotation();
+    System.out.println(rotation);
+    if (rotation == 0) {
+      zeroCount++;
+    } else {
+      zeroCount = 0;
+    }
+    return zeroCount == 5 || rotation != 0 && Math.abs(rotation) < 0.2;
   }
 }

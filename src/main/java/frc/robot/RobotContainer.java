@@ -5,13 +5,13 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.RobotController.Button;
 import frc.robot.commands.*;
@@ -24,12 +24,12 @@ import frc.robot.subsystems.*;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-    private final Drive drive = new Drive();
+    private final Drivesystem drivesystem = new Drivesystem();
     private final Pickup pickup = new Pickup(Constants.INDEX_MOTOR_PICKUP);
     private final Storage storage = new Storage(Constants.INDEX_MOTOR_STORAGE);
     private final Feeder feeder = new Feeder(Constants.INDEX_MOTOR_FEEDER);
     private final Shooter shooter = new Shooter(Constants.INDEX_MOTOR_SHOOTER_1, Constants.INDEX_MOTOR_SHOOTER_2);
-    private final AHRS gyro = new AHRS(SerialPort.Port.kUSB); 
+    private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
     private final RobotController controller = new RobotController(0);
 
     /**
@@ -37,7 +37,10 @@ public class RobotContainer {
      */
     public RobotContainer() {
         configureButtonBindings();
-        drive.setDefaultCommand(new RunCommand(() -> drive.driveTelop(-controller.getLeftY(), controller.getRightX()), drive));
+        drivesystem.setDefaultCommand(new Drive(
+                drivesystem,
+                () -> -controller.getLeftY() * drivesystem.getSpeedMultiplier(),
+                () -> controller.getRightX() * drivesystem.getRotationMultiplier()));
     }
 
     /**
@@ -52,7 +55,7 @@ public class RobotContainer {
 
         var buttonPickup = controller.getButton(Button.TRIGGER_RIGHT);
         var buttonDrop = controller.getButton(Button.TRIGGER_LEFT);
-        var buttonShoot = (JoystickButton)controller.getButton(Button.A);
+        var buttonShoot = (JoystickButton) controller.getButton(Button.A);
 
         buttonPickup.whenPressed(new InstantCommand(() -> {
             if (!buttonDrop.getAsBoolean()) {
@@ -91,34 +94,13 @@ public class RobotContainer {
                 feeder,
                 shooter,
                 buttonPickup,
-                buttonDrop,
-                1000));
-//        buttonShoot.whileHeld(new InstantCommand(() -> {
-//            if (!buttonDrop.getAsBoolean()) {
-//                if (shooter.atSpeed()) {
-//                    feeder.set(0.3);
-//                    storage.set(speedStorage);
-//                } else {
-//                    feeder.set(0);
-//                    storage.set(0);
-//                }
-//            }
-//        }));
-//        buttonShoot.whenReleased(new InstantCommand(() -> {
-//            feeder.set(0);
-//            shooter.stop();
-//            if (buttonDrop.getAsBoolean()) {
-//                storage.set(-speedStorage);
-//            } else if (!buttonPickup.getAsBoolean()) {
-//                storage.set(0);
-//            }
-//        }));
-        controller.getButton(Button.B).whenHeld(new TrackTarget(
-                drive,
+                buttonDrop));
+        controller.getButton(Button.B).or(controller.getButton(Button.JOYSTICK_RIGHT)).whileActiveOnce(new TrackTarget(
+                drivesystem,
                 () -> -controller.getLeftY(),
                 Limelight.limelightBall.getX()));
         controller.getButton(Button.Y).whenHeld(new TrackTarget(
-                drive,
+                drivesystem,
                 () -> -controller.getLeftY(),
                 Limelight.limelightHub.getX()));
     }
@@ -129,10 +111,29 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return new RotateToTarget(drive, () -> 0, Limelight.limelightBall.getX())
-        .andThen(new PickUpBall(drive, pickup, storage, 1.7))
-        .andThen(new RotateDegrees(drive, 180, gyro::getAngle))
-        .andThen(new RotateToTarget(drive, () -> 0, Limelight.limelightHub.getX()))
-        .andThen(new Shoot(storage, feeder, shooter, () -> false, () -> false, 3));
+        return new RotateToTarget(drivesystem, () -> 0, Limelight.limelightBall.getX())
+                .andThen(new ParallelRaceGroup(
+                        new Drive(drivesystem, () -> 0.5, drivesystem::getPidRotation),
+                        new PickUpBall(pickup, storage),
+                        new WaitCommand(1.7)
+                ))
+                .andThen(new RotateDegrees(drivesystem, 160, gyro::getAngle))
+                .andThen(new RotateToTarget(drivesystem, () -> 0, Limelight.limelightHub.getX()))
+                .andThen(new ParallelRaceGroup(
+                        new Shoot(storage, feeder, shooter, () -> false, () -> false),
+                        new WaitCommand(3)
+                ))
+                .andThen(new RotateDegrees(drivesystem, -45, gyro::getAngle))
+                .andThen(new RotateToTarget(drivesystem, () -> 0, Limelight.limelightBall.getX()))
+                .andThen(new ParallelRaceGroup(
+                        new Drive(drivesystem, () -> 0.5, drivesystem::getPidRotation),
+                        new PickUpBall(pickup, storage),
+                        new WaitCommand(2.5)
+                ))
+                .andThen(new RotateDegrees(drivesystem, 120, gyro::getAngle))
+                .andThen(new RotateToTarget(drivesystem, () -> 0, Limelight.limelightHub.getX()))
+                .andThen(new ParallelRaceGroup(
+                        new Shoot(storage, feeder, shooter, () -> false, () -> false)
+                ));
     }
 }

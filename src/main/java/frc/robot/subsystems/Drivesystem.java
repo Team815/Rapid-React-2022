@@ -12,12 +12,12 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.PIDSubsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import java.time.Duration;
 import java.time.Instant;
 
-public class Drive extends PIDSubsystem {
+public class Drivesystem extends SubsystemBase {
 
     final double ACCELERATION_MAX_SPEED = 3;
     final double ACCELERATION_MAX_ROTATION = 3;
@@ -29,13 +29,13 @@ public class Drive extends PIDSubsystem {
     private Instant previous = Instant.now();
     private double speedMultiplier = 1;
     private double rotationMultiplier = 1;
-    private double pidRotation = 0;
+    private final PIDController pidController;
 
     /**
      * Creates a new ExampleSubsystem.
      */
-    public Drive() {
-        super(new PIDController(-0.1, 0, 0));
+    public Drivesystem() {
+        pidController = new PIDController(-0.15, 0, 0);
         MotorControllerGroup leftGroup = new MotorControllerGroup(
                 new CANSparkMax(1, MotorType.kBrushless),
                 new CANSparkMax(2, MotorType.kBrushless),
@@ -63,12 +63,6 @@ public class Drive extends PIDSubsystem {
         setRotationMultiplier(SmartDashboard.getNumber("Max Rotation", 1));
     }
 
-    public void driveTelop(double speed, double rotation) {
-        speed *= speedMultiplier;
-        rotation *= rotationMultiplier;
-        drive(speed, rotation);
-    }
-
     public void drive(double speedIn, double rotationIn) {
         var now = Instant.now();
         var delta = Duration.between(previous, now).toNanos() * 1e-9;
@@ -84,6 +78,14 @@ public class Drive extends PIDSubsystem {
                 : Math.max(target, value - maxChange);
     }
 
+    public double getSpeedMultiplier() {
+        return speedMultiplier;
+    }
+
+    public double getRotationMultiplier() {
+        return rotationMultiplier;
+    }
+
     public void setSpeedMultiplier(double speedMultiplier) {
         this.speedMultiplier = clamp(speedMultiplier, 0, 1);
         SmartDashboard.putNumber("Max Speed", this.speedMultiplier);
@@ -94,20 +96,10 @@ public class Drive extends PIDSubsystem {
         SmartDashboard.putNumber("Max Rotation", this.rotationMultiplier);
     }
 
-    @Override
-    protected void useOutput(double output, double setpoint) {
-        pidRotation = Math.min(0.3, Math.abs(output)) * Math.signum(output);
-    }
-
-    @Override
-    public double getMeasurement() {
-        var measurement = limelightX.getDouble(0);
-        System.out.println(measurement);
-        return measurement;
-    }
-
     public double getPidRotation() {
-        return pidRotation;
+        var measurement = limelightX.getDouble(0);
+        var output = pidController.calculate(measurement);
+        return Math.min(0.3, Math.abs(output)) * Math.signum(output);
     }
 
     public void setEntry(NetworkTableEntry entry) {
