@@ -13,14 +13,16 @@ public class RotateDegrees extends CommandBase {
   private final Drivesystem drivesystem;
   private final double degrees;
   private final DoubleSupplier degreeSupplier;
+  private final DoubleSupplier rotationSupplier;
   private double targetAngle;
   private double angleDifference;
 
   /** Creates a new RotateDegrees. */
-  public RotateDegrees(Drivesystem drivesystem, double degrees, DoubleSupplier degreeSupplier) {
+  public RotateDegrees(Drivesystem drivesystem, double degrees, DoubleSupplier degreeSupplier, DoubleSupplier rotationSupplier) {
     this.drivesystem = drivesystem;
     this.degrees = degrees;
     this.degreeSupplier = degreeSupplier;
+    this.rotationSupplier = rotationSupplier;
   }
 
   // Called when the command is initially scheduled.
@@ -32,8 +34,9 @@ public class RotateDegrees extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    System.out.println("rotating");
     angleDifference = targetAngle - degreeSupplier.getAsDouble();
-    drivesystem.drive(0, 0.4 * Math.signum(angleDifference));
+    drivesystem.drive(0, rotationSupplier.getAsDouble() * Math.signum(angleDifference));
   }
 
   // Called once the command ends or is interrupted.

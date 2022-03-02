@@ -19,16 +19,16 @@ import java.time.Instant;
 
 public class Drivesystem extends SubsystemBase {
 
-    final double ACCELERATION_MAX_SPEED = 3;
-    final double ACCELERATION_MAX_ROTATION = 3;
+    double accelerationMaxSpeed = 3;
+    double accelerationMaxRotation = 3;
     private NetworkTableEntry limelightX = NetworkTableInstance.getDefault().getTable("limelight-balls").getEntry("tx");
     private final DifferentialDrive drive;
 
     private double speed = 0;
     private double rotation = 0;
     private Instant previous = Instant.now();
-    private double speedMultiplier = 1;
-    private double rotationMultiplier = 1;
+    private double speedMultiplier = .8;
+    private double rotationMultiplier = .75;
     private final PIDController pidController;
 
     /**
@@ -61,13 +61,17 @@ public class Drivesystem extends SubsystemBase {
         super.periodic();
         setSpeedMultiplier(SmartDashboard.getNumber("Max Speed", 1));
         setRotationMultiplier(SmartDashboard.getNumber("Max Rotation", 1));
+        accelerationMaxSpeed = SmartDashboard.getNumber("Max Acceleration Speed", 3);
+        accelerationMaxRotation = SmartDashboard.getNumber("Max Acceleration Rotation", 3);
+        SmartDashboard.putNumber("Max Acceleration Speed", accelerationMaxSpeed);
+        SmartDashboard.putNumber("Max Acceleration Rotation", accelerationMaxRotation);
     }
 
     public void drive(double speedIn, double rotationIn) {
         var now = Instant.now();
         var delta = Duration.between(previous, now).toNanos() * 1e-9;
-        speed = updateValue(speed, speedIn, delta * ACCELERATION_MAX_SPEED);
-        rotation = updateValue(rotation, rotationIn, delta * ACCELERATION_MAX_ROTATION);
+        speed = updateValue(speed, speedIn, delta * accelerationMaxSpeed);
+        rotation = updateValue(rotation, rotationIn, delta * accelerationMaxRotation);
         drive.arcadeDrive(speed, rotation);
         previous = now;
     }
@@ -99,7 +103,7 @@ public class Drivesystem extends SubsystemBase {
     public double getPidRotation() {
         var measurement = limelightX.getDouble(0);
         var output = pidController.calculate(measurement);
-        return Math.min(0.3, Math.abs(output)) * Math.signum(output);
+        return Math.min(0.35, Math.abs(output)) * Math.signum(output);
     }
 
     public void setEntry(NetworkTableEntry entry) {

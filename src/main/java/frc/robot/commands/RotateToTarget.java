@@ -31,6 +31,6 @@ public class RotateToTarget extends TrackTarget {
     } else {
       zeroCount = 0;
     }
-    return zeroCount == 5 || rotation != 0 && Math.abs(rotation) < 0.2;
+    return zeroCount == 20 || rotation != 0 && Math.abs(rotation) < 0.2;
   }
 }

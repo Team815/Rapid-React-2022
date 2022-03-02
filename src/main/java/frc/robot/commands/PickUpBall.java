@@ -26,8 +26,8 @@ public class PickUpBall extends CommandBase {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        pickup.set(0.4);
-        storage.set(0.4);
+        pickup.set(0.8);
+        storage.set(0.8);
     }
 
     // Called once the command ends or is interrupted.

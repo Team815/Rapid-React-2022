@@ -50,8 +50,8 @@ public class RobotContainer {
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        final double speedPickup = 0.3;
-        final double speedStorage = 0.3;
+        final double speedPickup = 0.8;
+        final double speedStorage = 0.8;
 
         var buttonPickup = controller.getButton(Button.TRIGGER_RIGHT);
         var buttonDrop = controller.getButton(Button.TRIGGER_LEFT);
@@ -103,6 +103,9 @@ public class RobotContainer {
                 drivesystem,
                 () -> -controller.getLeftY(),
                 Limelight.limelightHub.getX()));
+        controller.getButton(Button.DPAD_RIGHT).whenHeld(new RotateDegrees(drivesystem, 90, gyro::getAngle, () -> 0.5));
+        controller.getButton(Button.DPAD_LEFT).whenHeld(new RotateDegrees(drivesystem, -90, gyro::getAngle, () -> 0.5));
+        controller.getButton(Button.DPAD_DOWN).whenHeld(new RotateDegrees(drivesystem, 180, gyro::getAngle, () -> 0.5));
     }
 
     /**
@@ -117,23 +120,31 @@ public class RobotContainer {
                         new PickUpBall(pickup, storage),
                         new WaitCommand(1.7)
                 ))
-                .andThen(new RotateDegrees(drivesystem, 160, gyro::getAngle))
+                .andThen(new ParallelRaceGroup(
+                    new RotateDegrees(drivesystem, 160, gyro::getAngle, () -> 0.5),
+                    new StartShooter(shooter)
+                ))
                 .andThen(new RotateToTarget(drivesystem, () -> 0, Limelight.limelightHub.getX()))
                 .andThen(new ParallelRaceGroup(
                         new Shoot(storage, feeder, shooter, () -> false, () -> false),
-                        new WaitCommand(3)
+                        new TrackTarget(drivesystem, () -> 0, Limelight.limelightHub.getX()),
+                        new WaitCommand(2)
                 ))
-                .andThen(new RotateDegrees(drivesystem, -45, gyro::getAngle))
+                .andThen(new RotateDegrees(drivesystem, -35, gyro::getAngle, () -> 0.5))
                 .andThen(new RotateToTarget(drivesystem, () -> 0, Limelight.limelightBall.getX()))
                 .andThen(new ParallelRaceGroup(
-                        new Drive(drivesystem, () -> 0.5, drivesystem::getPidRotation),
+                        new Drive(drivesystem, () -> 0.53, drivesystem::getPidRotation),
                         new PickUpBall(pickup, storage),
                         new WaitCommand(2.5)
                 ))
-                .andThen(new RotateDegrees(drivesystem, 120, gyro::getAngle))
+                .andThen(new ParallelRaceGroup(
+                    new RotateDegrees(drivesystem, 100, gyro::getAngle, () -> 0.5),
+                    new StartShooter(shooter)
+                ))
                 .andThen(new RotateToTarget(drivesystem, () -> 0, Limelight.limelightHub.getX()))
                 .andThen(new ParallelRaceGroup(
-                        new Shoot(storage, feeder, shooter, () -> false, () -> false)
+                        new Shoot(storage, feeder, shooter, () -> false, () -> false),
+                        new TrackTarget(drivesystem, () -> 0, Limelight.limelightHub.getX())
                 ));
     }
 }

@@ -23,17 +23,9 @@ public class Drive extends CommandBase {
     addRequirements(drivesystem);
   }
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {}
-
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     drivesystem.drive(speedSupplier.getAsDouble(), rotationSupplier.getAsDouble());
   }
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {}
 }

@@ -43,8 +43,8 @@ public class Shoot extends CommandBase {
     public void execute() {
         if (!dropping.getAsBoolean()) {
             if (shooter.atSpeed()) {
-                feeder.set(0.3);
-                storage.set(0.3);
+                feeder.set(0.8);
+                storage.set(0.8);
             } else {
                 feeder.set(0);
                 storage.set(0);
@@ -59,7 +59,7 @@ public class Shoot extends CommandBase {
         feeder.set(0);
         shooter.stop();
         if (dropping.getAsBoolean()) {
-            storage.set(-0.3);
+            storage.set(-1.0);
         } else if (!pickingUp.getAsBoolean()) {
             storage.set(0);
         }
