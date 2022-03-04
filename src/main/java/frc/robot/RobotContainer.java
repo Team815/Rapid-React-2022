@@ -26,6 +26,7 @@ import frc.robot.subsystems.*;
 public class RobotContainer {
     private final Drivesystem drivesystem = new Drivesystem();
     private final Pickup pickup = new Pickup(Constants.INDEX_MOTOR_PICKUP);
+    private final Climber climber = new Climber(Constants.INDEX_MOTOR_CLIMBER);
     private final Storage storage = new Storage(Constants.INDEX_MOTOR_STORAGE);
     private final Feeder feeder = new Feeder(Constants.INDEX_MOTOR_FEEDER);
     private final Shooter shooter = new Shooter(Constants.INDEX_MOTOR_SHOOTER_1, Constants.INDEX_MOTOR_SHOOTER_2);
@@ -56,7 +57,21 @@ public class RobotContainer {
         var buttonPickup = controller.getButton(Button.TRIGGER_RIGHT);
         var buttonDrop = controller.getButton(Button.TRIGGER_LEFT);
         var buttonShoot = (JoystickButton) controller.getButton(Button.A);
+        var buttonClimberUp = controller.getButton(Button.START);
+        var buttonClimberDown = controller.getButton(Button.SELECT);
 
+        buttonClimberUp.whenPressed(new InstantCommand(() -> {
+            climber.moveUp();
+        }));
+        buttonClimberUp.whenReleased(new InstantCommand(() -> {
+            climber.disable();
+        }));
+        buttonClimberDown.whenPressed(new InstantCommand(() -> {
+            climber.moveDown();
+        }));
+        buttonClimberDown.whenReleased(new InstantCommand(() -> {
+            climber.disable();
+        }));
         buttonPickup.whenPressed(new InstantCommand(() -> {
             if (!buttonDrop.getAsBoolean()) {
                 pickup.set(speedPickup);
