@@ -18,11 +18,11 @@ public class Climber extends SubsystemBase {
   }
 
   public void moveUp() {
-    climber.set(0.3);
+    climber.set(1.0);
   }
 
   public void moveDown() {
-    climber.set(-0.3);
+    climber.set(-1.0);
   }
 
   public void disable() {

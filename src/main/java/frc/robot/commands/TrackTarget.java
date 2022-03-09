@@ -14,20 +14,28 @@ import frc.robot.subsystems.Drivesystem;
  */
 public class TrackTarget extends Drive {
     private final NetworkTableEntry entry;
+    private final DoubleSupplier offsetSupplier;
 
     /**
      * Creates a new ExampleCommand.
      *
      * @param drivesystem The drive used by this command.
      */
-    public TrackTarget(Drivesystem drivesystem, DoubleSupplier speedSupplier, NetworkTableEntry entry) {
+    public TrackTarget(Drivesystem drivesystem, DoubleSupplier speedSupplier, NetworkTableEntry entry, DoubleSupplier offsetSupplier) {
         super(drivesystem, speedSupplier, drivesystem::getPidRotation);
         this.entry = entry;
+        this.offsetSupplier = offsetSupplier;
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
         drivesystem.setEntry(entry);
+    }
+
+    @Override
+    public void execute() {
+        drivesystem.setSetpoint(offsetSupplier.getAsDouble());
+        super.execute();
     }
 }

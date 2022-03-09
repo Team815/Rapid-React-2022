@@ -36,5 +36,5 @@ public final class Constants {
     public static final int INDEX_MOTOR_FEEDER = 2;
     public static final int INDEX_MOTOR_SHOOTER_1 = 3;
     public static final int INDEX_MOTOR_SHOOTER_2 = 4;
-    public static final int INDEX_MOTOR_CLIMBER = 5;
+    public static final int INDEX_MOTOR_CLIMBER = 7;
 }

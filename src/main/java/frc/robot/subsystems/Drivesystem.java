@@ -100,6 +100,10 @@ public class Drivesystem extends SubsystemBase {
         SmartDashboard.putNumber("Max Rotation", this.rotationMultiplier);
     }
 
+    public void setSetpoint(double setpoint) {
+        pidController.setSetpoint(setpoint);
+    }
+
     public double getPidRotation() {
         var measurement = limelightX.getDouble(0);
         var output = pidController.calculate(measurement);

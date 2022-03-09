@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -19,7 +20,7 @@ public class Shooter extends PIDSubsystem {
   private final MotorControllerGroup motors;
   private final DoubleSupplier speedSupplier;
   private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(3.706E-2, 2.338E-5);
-  private double speed;
+  private double speed = 30000;
 
   /** Creates a new Shooter. */
   public Shooter(int motor1Index, int motor2Index) {
@@ -29,8 +30,8 @@ public class Shooter extends PIDSubsystem {
     motor1.setInverted(true);
     speedSupplier = motor2::getSelectedSensorVelocity;
     motors = new MotorControllerGroup(
-            new TalonSrxAdapter(motor1),
-            new TalonSrxAdapter(motor2));
+            new TalonSrxAdapter(motor1, ControlMode.PercentOutput),
+            new TalonSrxAdapter(motor2, ControlMode.PercentOutput));
   }
 
   public void shoot() {
@@ -43,22 +44,22 @@ public class Shooter extends PIDSubsystem {
   }
 
   public boolean atSpeed() {
-    return Math.abs(speedSupplier.getAsDouble() - speed) < 500;
+    return Math.abs(speedSupplier.getAsDouble() - speed) < 1000;
   }
 
   @Override
   public void periodic() {
     super.periodic();
-    speed = SmartDashboard.getNumber("Shooter Speed", 0);
+    speed = SmartDashboard.getNumber("Shooter Speed", 30000);
     setSetpoint(speed);
     SmartDashboard.putNumber("Shooter Speed", speed);
+    SmartDashboard.putNumber("Current Shooter Speed", getMeasurement());
   }
 
   @Override
   protected void useOutput(double output, double setpoint) {
-    var rpm = getMeasurement();
     var motorSpeed = feedforward.calculate(speed) + output;
-    System.out.println("RPM = " + rpm + "; Speed ; " + motorSpeed + "; PID = " + output);
+    System.out.println("\"RPM\": " + getMeasurement() + ", \"Speed\": " + motorSpeed + ", \"PID\": " + output);
     motors.set(motorSpeed);
   }
 

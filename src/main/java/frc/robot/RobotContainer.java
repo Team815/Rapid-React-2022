@@ -5,9 +5,11 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -38,6 +40,9 @@ public class RobotContainer {
      */
     public RobotContainer() {
         configureButtonBindings();
+        SmartDashboard.putNumber("Target Offset", 0);
+        SmartDashboard.putNumber("Auton Num Balls", 3);
+
         drivesystem.setDefaultCommand(new Drive(
                 drivesystem,
                 () -> -controller.getLeftY() * drivesystem.getSpeedMultiplier(),
@@ -113,11 +118,13 @@ public class RobotContainer {
         controller.getButton(Button.B).or(controller.getButton(Button.JOYSTICK_RIGHT)).whileActiveOnce(new TrackTarget(
                 drivesystem,
                 () -> -controller.getLeftY(),
-                Limelight.limelightBall.getX()));
+                Limelight.limelightBall.getX(),
+                () -> 0));
         controller.getButton(Button.Y).whenHeld(new TrackTarget(
                 drivesystem,
                 () -> -controller.getLeftY(),
-                Limelight.limelightHub.getX()));
+                Limelight.limelightHub.getX(),
+                () -> SmartDashboard.getEntry("Target Offset").getDouble(0)));
         controller.getButton(Button.DPAD_RIGHT).whenHeld(new RotateDegrees(drivesystem, 90, gyro::getAngle, () -> 0.5));
         controller.getButton(Button.DPAD_LEFT).whenHeld(new RotateDegrees(drivesystem, -90, gyro::getAngle, () -> 0.5));
         controller.getButton(Button.DPAD_DOWN).whenHeld(new RotateDegrees(drivesystem, 180, gyro::getAngle, () -> 0.5));
@@ -129,24 +136,57 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return new RotateToTarget(drivesystem, () -> 0, Limelight.limelightBall.getX())
-                .andThen(new ParallelRaceGroup(
-                        new Drive(drivesystem, () -> 0.5, drivesystem::getPidRotation),
-                        new PickUpBall(pickup, storage),
-                        new WaitCommand(1.7)
-                ))
-                .andThen(new ParallelRaceGroup(
-                    new RotateDegrees(drivesystem, 160, gyro::getAngle, () -> 0.5),
-                    new StartShooter(shooter)
-                ))
-                .andThen(new RotateToTarget(drivesystem, () -> 0, Limelight.limelightHub.getX()))
-                .andThen(new ParallelRaceGroup(
-                        new Shoot(storage, feeder, shooter, () -> false, () -> false),
-                        new TrackTarget(drivesystem, () -> 0, Limelight.limelightHub.getX()),
-                        new WaitCommand(2)
-                ))
-                .andThen(new RotateDegrees(drivesystem, -35, gyro::getAngle, () -> 0.5))
-                .andThen(new RotateToTarget(drivesystem, () -> 0, Limelight.limelightBall.getX()))
+        var shoot1Ball = new ParallelRaceGroup(
+            new Drive(drivesystem, () -> -0.5, () -> 0),
+            new WaitCommand(0.4)
+        )
+        .andThen(new RotateToTarget(
+            drivesystem,
+            () -> 0,
+            Limelight.limelightHub.getX(),
+            () -> SmartDashboard.getEntry("Target Offset").getDouble(0)))
+        .andThen(new ParallelRaceGroup(
+                new Shoot(storage, feeder, shooter, () -> false, () -> false),
+                new TrackTarget(
+                    drivesystem,
+                    () -> 0,
+                    Limelight.limelightHub.getX(),
+                    () -> SmartDashboard.getEntry("Target Offset").getDouble(0)),
+                new WaitCommand(5)
+        ));
+
+        var shoot2Balls = new RotateToTarget(drivesystem, () -> 0, Limelight.limelightBall.getX(), () -> 0)
+        .andThen(new ParallelRaceGroup(
+                new Drive(drivesystem, () -> 0.5, drivesystem::getPidRotation),
+                new PickUpBall(pickup, storage),
+                new WaitCommand(1.7)
+        ))
+        .andThen(new ParallelRaceGroup(
+                new Drive(drivesystem, () -> -0.5, () -> 0),
+                new PickUpBall(pickup, storage),
+                new WaitCommand(0.7)
+        ))
+        .andThen(new ParallelRaceGroup(
+            new RotateDegrees(drivesystem, 160, gyro::getAngle, () -> 0.5),
+            new StartShooter(shooter)
+        ))
+        .andThen(new RotateToTarget(
+            drivesystem,
+            () -> 0,
+            Limelight.limelightHub.getX(),
+            () -> SmartDashboard.getEntry("Target Offset").getDouble(0)))
+        .andThen(new ParallelRaceGroup(
+                new Shoot(storage, feeder, shooter, () -> false, () -> false),
+                new TrackTarget(
+                    drivesystem,
+                    () -> 0,
+                    Limelight.limelightHub.getX(),
+                    () -> SmartDashboard.getEntry("Target Offset").getDouble(0)),
+                new WaitCommand(2)
+        ));
+        var shoot3Balls =  shoot2Balls
+                .andThen(new RotateDegrees(drivesystem, -45, gyro::getAngle, () -> 0.5))
+                .andThen(new RotateToTarget(drivesystem, () -> 0, Limelight.limelightBall.getX(), () -> 0))
                 .andThen(new ParallelRaceGroup(
                         new Drive(drivesystem, () -> 0.53, drivesystem::getPidRotation),
                         new PickUpBall(pickup, storage),
@@ -154,12 +194,35 @@ public class RobotContainer {
                 ))
                 .andThen(new ParallelRaceGroup(
                     new RotateDegrees(drivesystem, 100, gyro::getAngle, () -> 0.5),
+                    new PickUpBall(pickup, storage),
                     new StartShooter(shooter)
                 ))
-                .andThen(new RotateToTarget(drivesystem, () -> 0, Limelight.limelightHub.getX()))
+                .andThen(new RotateToTarget(
+                    drivesystem,
+                    () -> 0,
+                    Limelight.limelightHub.getX(),
+                    () -> SmartDashboard.getEntry("Target Offset").getDouble(0)))
+                .andThen(new ParallelRaceGroup(
+                        new Drive(drivesystem, () -> 0.5, drivesystem::getPidRotation),
+                        new WaitCommand(1.0)
+                ))
                 .andThen(new ParallelRaceGroup(
                         new Shoot(storage, feeder, shooter, () -> false, () -> false),
-                        new TrackTarget(drivesystem, () -> 0, Limelight.limelightHub.getX())
+                        new TrackTarget(
+                            drivesystem,
+                            () -> 0,
+                            Limelight.limelightHub.getX(),
+                            () -> SmartDashboard.getEntry("Target Offset").getDouble(0))
                 ));
+        
+        var numberOfBalls = (int)SmartDashboard.getNumber("Auton Num Balls", 3);
+        
+        var commandToRun = numberOfBalls == 1 ? shoot1Ball :
+                            numberOfBalls == 2 ? shoot2Balls :
+                            shoot3Balls;
+
+        return new ParallelRaceGroup(
+            commandToRun,
+            new WaitCommand(15));
     }
 }

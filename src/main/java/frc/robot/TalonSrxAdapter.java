@@ -12,14 +12,16 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 /** Add your docs here. */
 public class TalonSrxAdapter implements MotorController {
     private final TalonSRX motor;
+    private ControlMode controlMode;
 
-    public TalonSrxAdapter(TalonSRX motor) {
+    public TalonSrxAdapter(TalonSRX motor, ControlMode controlMode) {
         this.motor = motor;
+        this.controlMode = controlMode;
     }
 
     @Override
     public void set(double speed) {
-        motor.set(ControlMode.PercentOutput, speed);
+        motor.set(controlMode, speed);
     }
 
     @Override
@@ -45,5 +47,9 @@ public class TalonSrxAdapter implements MotorController {
     @Override
     public void stopMotor() {
         set(0);
+    }
+
+    public void setControlMode(ControlMode controlMode) {
+        this.controlMode = controlMode;
     }
 }
