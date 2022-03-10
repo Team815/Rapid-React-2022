@@ -6,6 +6,7 @@ package frc.robot;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 /** Add your docs here. */
 public class Limelight {
@@ -31,8 +32,8 @@ public class Limelight {
         return networkTable.getEntry("tv");
     }
 
-    public void setPipeline(GamePiece gamePiece) {
-        int pipelineId = gamePiece.getValue();
-        networkTable.getEntry("getpipe").setNumber(pipelineId);     
+    public void setPipeline(Alliance alliance) {
+        int id = alliance == Alliance.Blue ? 0 : 1;
+        networkTable.getEntry("pipeline").setNumber(id);
     }
 }
