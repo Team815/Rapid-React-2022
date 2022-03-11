@@ -18,6 +18,8 @@ import frc.robot.RobotController.Button;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 
+import java.util.function.DoubleSupplier;
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -33,6 +35,8 @@ public class RobotContainer {
     private final Shooter shooter = new Shooter(Constants.INDEX_MOTOR_SHOOTER_1, Constants.INDEX_MOTOR_SHOOTER_2);
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
     private final RobotController controller = new RobotController(0);
+    private final DoubleSupplier shootHighValue = () -> SmartDashboard.getNumber("Shooter Speed High", 30000);
+    private final DoubleSupplier shootLowValue = () -> SmartDashboard.getNumber("Shooter Speed Low", 18000);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -60,7 +64,8 @@ public class RobotContainer {
 
         var buttonPickup = controller.getButton(Button.TRIGGER_RIGHT);
         var buttonDrop = controller.getButton(Button.TRIGGER_LEFT);
-        var buttonShoot = (JoystickButton) controller.getButton(Button.A);
+        var buttonShootHigh = (JoystickButton) controller.getButton(Button.A);
+        var buttonShootLow = (JoystickButton) controller.getButton(Button.B);
         var buttonClimberUp = controller.getButton(Button.START);
         var buttonClimberDown = controller.getButton(Button.SELECT);
 
@@ -85,7 +90,7 @@ public class RobotContainer {
         buttonPickup.whenReleased(new InstantCommand(() -> {
             if (!buttonDrop.getAsBoolean()) {
                 pickup.set(0);
-                if (!buttonShoot.get()) {
+                if (!buttonShootHigh.get()) {
                     System.out.println("stop");
                     storage.set(0);
                 }
@@ -101,20 +106,28 @@ public class RobotContainer {
                 storage.set(speedStorage);
             } else {
                 pickup.set(0);
-                if (buttonShoot.get()) {
+                if (buttonShootHigh.get()) {
                     storage.set(speedStorage);
                 } else {
                     storage.set(0);
                 }
             }
         }));
-        buttonShoot.whenHeld(new Shoot(
+        buttonShootHigh.whenHeld(new Shoot(
                 storage,
                 feeder,
                 shooter,
                 buttonPickup,
-                buttonDrop));
-        controller.getButton(Button.B).or(controller.getButton(Button.JOYSTICK_RIGHT)).whileActiveOnce(new TrackTarget(
+                buttonDrop,
+                shootHighValue.getAsDouble()));
+        buttonShootLow.whenHeld(new Shoot(
+                storage,
+                feeder,
+                shooter,
+                buttonPickup,
+                buttonDrop,
+                shootLowValue.getAsDouble()));
+        controller.getButton(Button.JOYSTICK_RIGHT).whenHeld(new TrackTarget(
                 drivesystem,
                 () -> -controller.getLeftY(),
                 Limelight.limelightBall.getX(),
@@ -145,7 +158,7 @@ public class RobotContainer {
             Limelight.limelightHub.getX(),
             () -> SmartDashboard.getEntry("Target Offset").getDouble(0)))
         .andThen(new ParallelRaceGroup(
-                new Shoot(storage, feeder, shooter, () -> false, () -> false),
+                new Shoot(storage, feeder, shooter, () -> false, () -> false, shootHighValue.getAsDouble()),
                 new TrackTarget(
                     drivesystem,
                     () -> 0,
@@ -167,7 +180,7 @@ public class RobotContainer {
         ))
         .andThen(new ParallelRaceGroup(
             new RotateDegrees(drivesystem, 160, gyro::getAngle, () -> 0.5),
-            new StartShooter(shooter)
+            new StartShooter(shooter, shootHighValue.getAsDouble())
         ))
         .andThen(new RotateToTarget(
             drivesystem,
@@ -175,7 +188,7 @@ public class RobotContainer {
             Limelight.limelightHub.getX(),
             () -> SmartDashboard.getEntry("Target Offset").getDouble(0)))
         .andThen(new ParallelRaceGroup(
-                new Shoot(storage, feeder, shooter, () -> false, () -> false),
+                new Shoot(storage, feeder, shooter, () -> false, () -> false, shootHighValue.getAsDouble()),
                 new TrackTarget(
                     drivesystem,
                     () -> 0,
@@ -194,7 +207,7 @@ public class RobotContainer {
                 .andThen(new ParallelRaceGroup(
                     new RotateDegrees(drivesystem, 100, gyro::getAngle, () -> 0.5),
                     new PickUpBall(pickup, storage),
-                    new StartShooter(shooter)
+                    new StartShooter(shooter, shootHighValue.getAsDouble())
                 ))
                 .andThen(new RotateToTarget(
                     drivesystem,
@@ -206,7 +219,7 @@ public class RobotContainer {
                         new WaitCommand(1.0)
                 ))
                 .andThen(new ParallelRaceGroup(
-                        new Shoot(storage, feeder, shooter, () -> false, () -> false),
+                        new Shoot(storage, feeder, shooter, () -> false, () -> false, shootHighValue.getAsDouble()),
                         new TrackTarget(
                             drivesystem,
                             () -> 0,

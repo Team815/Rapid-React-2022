@@ -18,16 +18,24 @@ public class Shoot extends CommandBase {
     private final Shooter shooter;
     private final BooleanSupplier pickingUp;
     private final BooleanSupplier dropping;
+    private final double targetSpeed;
 
     /**
      * Creates a new Shoot.
      */
-    public Shoot(Storage storage, Feeder feeder, Shooter shooter, BooleanSupplier pickingUp, BooleanSupplier dropping) {
+    public Shoot(
+            Storage storage,
+            Feeder feeder,
+            Shooter shooter,
+            BooleanSupplier pickingUp,
+            BooleanSupplier dropping,
+            double targetSpeed) {
         this.storage = storage;
         this.feeder = feeder;
         this.shooter = shooter;
         this.pickingUp = pickingUp;
         this.dropping = dropping;
+        this.targetSpeed = targetSpeed;
         addRequirements(storage, feeder, shooter);
     }
 
@@ -35,7 +43,7 @@ public class Shoot extends CommandBase {
     @Override
     public void initialize() {
         super.initialize();
-        shooter.shoot();
+        shooter.shoot(this.targetSpeed);
     }
 
     // Called every time the scheduler runs while the command is scheduled.

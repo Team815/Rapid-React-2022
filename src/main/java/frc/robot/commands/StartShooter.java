@@ -9,15 +9,17 @@ import frc.robot.subsystems.Shooter;
 
 public class StartShooter extends CommandBase {
   private final Shooter shooter;
+  private final double targetSpeed;
+
   /** Creates a new StartShooter. */
-  public StartShooter(Shooter shooter) {
+  public StartShooter(Shooter shooter, double targetSpeed) {
     this.shooter = shooter;
+    this.targetSpeed = targetSpeed;
     addRequirements(shooter);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    shooter.shoot();
-  }
+    shooter.shoot(this.targetSpeed);  }
 }

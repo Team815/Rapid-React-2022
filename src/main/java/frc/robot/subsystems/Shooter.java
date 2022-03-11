@@ -18,9 +18,9 @@ import java.util.function.DoubleSupplier;
 public class Shooter extends PIDSubsystem {
 
   private final MotorControllerGroup motors;
-  private final DoubleSupplier speedSupplier;
+  private final DoubleSupplier currentSpeedSupplier;
   private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(3.706E-2, 2.338E-5);
-  private double speed = 30000;
+  private double targetSpeed;
 
   /** Creates a new Shooter. */
   public Shooter(int motor1Index, int motor2Index) {
@@ -28,13 +28,15 @@ public class Shooter extends PIDSubsystem {
     var motor1 = new TalonSRX(motor1Index);
     var motor2 = new TalonSRX(motor2Index);
     motor1.setInverted(true);
-    speedSupplier = motor2::getSelectedSensorVelocity;
+    currentSpeedSupplier = motor2::getSelectedSensorVelocity;
     motors = new MotorControllerGroup(
             new TalonSrxAdapter(motor1, ControlMode.PercentOutput),
             new TalonSrxAdapter(motor2, ControlMode.PercentOutput));
   }
 
-  public void shoot() {
+  public void shoot(double targetSpeed) {
+    this.targetSpeed = targetSpeed;
+    setSetpoint(targetSpeed);
     enable();
   }
 
@@ -44,27 +46,24 @@ public class Shooter extends PIDSubsystem {
   }
 
   public boolean atSpeed() {
-    return Math.abs(speedSupplier.getAsDouble() - speed) < 1000;
+    return Math.abs(currentSpeedSupplier.getAsDouble() - targetSpeed) < 1000;
   }
 
   @Override
   public void periodic() {
     super.periodic();
-    speed = SmartDashboard.getNumber("Shooter Speed", 30000);
-    setSetpoint(speed);
-    SmartDashboard.putNumber("Shooter Speed", speed);
     SmartDashboard.putNumber("Current Shooter Speed", getMeasurement());
   }
 
   @Override
   protected void useOutput(double output, double setpoint) {
-    var motorSpeed = feedforward.calculate(speed) + output;
+    var motorSpeed = feedforward.calculate(targetSpeed) + output;
     System.out.println("\"RPM\": " + getMeasurement() + ", \"Speed\": " + motorSpeed + ", \"PID\": " + output);
     motors.set(motorSpeed);
   }
 
   @Override
   protected double getMeasurement() {
-    return speedSupplier.getAsDouble();
+    return currentSpeedSupplier.getAsDouble();
   }
 }
