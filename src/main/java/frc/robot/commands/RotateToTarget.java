@@ -13,8 +13,8 @@ public class RotateToTarget extends TrackTarget {
   private int zeroCount = 0;
 
   /** Creates a new RotateToBall. */
-  public RotateToTarget(Drivesystem drivesystem, DoubleSupplier speedSupplier, NetworkTableEntry entry, DoubleSupplier offsetSupplier) {
-    super(drivesystem, speedSupplier, entry, offsetSupplier);
+  public RotateToTarget(Drivesystem drivesystem, DoubleSupplier speedSupplier, NetworkTableEntry entry) {
+    super(drivesystem, speedSupplier, entry);
   }
 
   @Override

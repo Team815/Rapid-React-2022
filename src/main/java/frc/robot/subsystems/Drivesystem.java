@@ -22,6 +22,7 @@ public class Drivesystem extends SubsystemBase {
     double accelerationMaxSpeed = 3;
     double accelerationMaxRotation = 3;
     private NetworkTableEntry limelightX = NetworkTableInstance.getDefault().getTable("limelight-balls").getEntry("tx");
+    private NetworkTableEntry limelightY = NetworkTableInstance.getDefault().getTable("limelight-balls").getEntry("ty");
     private final DifferentialDrive drive;
 
     private double speed = 0;
@@ -29,13 +30,15 @@ public class Drivesystem extends SubsystemBase {
     private Instant previous = Instant.now();
     private double speedMultiplier = .8;
     private double rotationMultiplier = .75;
-    private final PIDController pidController;
+    private final PIDController pidControllerRotation;
+    private final PIDController pidControllerDistance;
 
     /**
      * Creates a new ExampleSubsystem.
      */
     public Drivesystem() {
-        pidController = new PIDController(-0.15, 0, 0);
+        pidControllerRotation = new PIDController(-0.15, 0, 0);
+        pidControllerDistance = new PIDController(-0.15, 0, 0);
         MotorControllerGroup leftGroup = new MotorControllerGroup(
                 new CANSparkMax(1, MotorType.kBrushless),
                 new CANSparkMax(2, MotorType.kBrushless),
@@ -100,15 +103,18 @@ public class Drivesystem extends SubsystemBase {
         SmartDashboard.putNumber("Max Rotation", this.rotationMultiplier);
     }
 
-    public void setSetpoint(double setpoint) {
-        pidController.setSetpoint(setpoint);
-    }
-
     public double getPidRotation() {
         var measurement = limelightX.getDouble(0);
-        var output = pidController.calculate(measurement);
+        var output = pidControllerRotation.calculate(measurement);
+        return Math.min(0.30, Math.abs(output)) * Math.signum(output);
+    }
+
+    public double getPidDistance(){
+        var measurement = limelightY.getDouble(0);
+        var output = pidControllerDistance.calculate(measurement);
         return Math.min(0.35, Math.abs(output)) * Math.signum(output);
     }
+
 
     public void setEntry(NetworkTableEntry entry) {
         limelightX = entry;
