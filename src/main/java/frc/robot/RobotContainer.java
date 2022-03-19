@@ -67,21 +67,13 @@ public class RobotContainer {
         var buttonDrop = controller.getButton(Button.TRIGGER_LEFT);
         var buttonShootHigh = (JoystickButton) controller.getButton(Button.A);
         var buttonShootLow = (JoystickButton) controller.getButton(Button.B);
-        var buttonClimberUp = controller.getButton(Button.START);
-        var buttonClimberDown = controller.getButton(Button.SELECT);
+        var buttonClimberDown = controller.getButton(Button.START);
+        var buttonClimberUp = controller.getButton(Button.SELECT);
 
-        buttonClimberUp.whenPressed(new InstantCommand(() -> {
-            climber.moveUp();
-        }));
-        buttonClimberUp.whenReleased(new InstantCommand(() -> {
-            climber.disable();
-        }));
-        buttonClimberDown.whenPressed(new InstantCommand(() -> {
-            climber.moveDown();
-        }));
-        buttonClimberDown.whenReleased(new InstantCommand(() -> {
-            climber.disable();
-        }));
+        buttonClimberUp.whenPressed(new InstantCommand(climber::moveUp));
+        buttonClimberUp.whenReleased(new InstantCommand(climber::disable));
+        buttonClimberDown.whenPressed(new InstantCommand(climber::moveDown));
+        buttonClimberDown.whenReleased(new InstantCommand(climber::disable));
         buttonPickup.whenPressed(new InstantCommand(() -> {
             if (!buttonDrop.getAsBoolean()) {
                 pickup.set(speedPickup);
