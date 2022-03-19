@@ -36,7 +36,7 @@ public class RobotContainer {
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
     private final RobotController controller = new RobotController(0);
     private final DoubleSupplier shootHighValue = () -> SmartDashboard.getNumber("Shooter Speed High", 30000);
-    private final DoubleSupplier shootLowValue = () -> SmartDashboard.getNumber("Shooter Speed Low", 18000);
+    private final DoubleSupplier shootLowValue = () -> SmartDashboard.getNumber("Shooter Speed Low", 15000);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -175,7 +175,7 @@ public class RobotContainer {
                 new WaitCommand(0.7)
         ))
         .andThen(new ParallelRaceGroup(
-            new RotateDegrees(drivesystem, 160, gyro::getAngle, () -> 0.5),
+            new RotateDegrees(drivesystem, 180, gyro::getAngle, () -> 0.5),
             new StartShooter(shooter, shootHighValue.getAsDouble())
         ))
         .andThen(new RotateToTarget(
