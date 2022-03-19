@@ -156,12 +156,11 @@ public class RobotContainer {
                 new WaitCommand(5)
         ));
 
-        var shoot2Balls = new RotateToTarget(drivesystem, () -> 0, Limelight.limelightBall.getX())
-        .andThen(new ParallelRaceGroup(
+        var shoot2Balls = new ParallelRaceGroup(
                 new Drive(drivesystem, () -> 0.5, drivesystem::getPidRotation),
                 new PickUpBall(pickup, storage),
                 new WaitCommand(1.7)
-        ))
+        )
         .andThen(new ParallelRaceGroup(
                 new Drive(drivesystem, () -> -0.5, () -> 0),
                 new PickUpBall(pickup, storage),
