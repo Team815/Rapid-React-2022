@@ -35,7 +35,7 @@ public class RobotContainer {
     private final Shooter shooter = new Shooter(Constants.INDEX_MOTOR_SHOOTER_1, Constants.INDEX_MOTOR_SHOOTER_2);
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
     private final RobotController controller = new RobotController(0);
-    private final DoubleSupplier shootHighValue = () -> SmartDashboard.getNumber("Shooter Speed High", 30000);
+    private final DoubleSupplier shootHighValue = () -> SmartDashboard.getNumber("Shooter Speed High", 25000);
     private final DoubleSupplier shootLowValue = () -> SmartDashboard.getNumber("Shooter Speed Low", 15000);
 
     /**
@@ -43,7 +43,8 @@ public class RobotContainer {
      */
     public RobotContainer() {
         configureButtonBindings();
-        SmartDashboard.putNumber("Target Offset", 0);
+        SmartDashboard.putNumber("Shooter Speed High", 25000);
+        SmartDashboard.putNumber("Shooter Speed Low", 15000);
         SmartDashboard.putNumber("Auton Num Balls", 3);
 
         drivesystem.setDefaultCommand(new Drive(
@@ -174,6 +175,7 @@ public class RobotContainer {
                 new PickUpBall(pickup, storage),
                 new WaitCommand(0.7)
         ))
+        .andThen(new WaitCommand(0.7))
         .andThen(new ParallelRaceGroup(
             new RotateDegrees(drivesystem, 180, gyro::getAngle, () -> 0.5),
             new StartShooter(shooter, shootHighValue.getAsDouble())
@@ -198,6 +200,7 @@ public class RobotContainer {
                         new PickUpBall(pickup, storage),
                         new WaitCommand(2.5)
                 ))
+                .andThen(new WaitCommand(0.7))
                 .andThen(new ParallelRaceGroup(
                     new RotateDegrees(drivesystem, 100, gyro::getAngle, () -> 0.5),
                     new PickUpBall(pickup, storage),
@@ -209,7 +212,7 @@ public class RobotContainer {
                     Limelight.limelightHub.getX()))
                 .andThen(new ParallelRaceGroup(
                         new Drive(drivesystem, () -> 0.5, drivesystem::getPidRotation),
-                        new WaitCommand(1.0)
+                        new WaitCommand(0.7)
                 ))
                 .andThen(new ParallelRaceGroup(
                         new Shoot(storage, feeder, shooter, () -> false, () -> false, shootHighValue.getAsDouble()),
