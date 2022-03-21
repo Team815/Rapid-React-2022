@@ -168,7 +168,7 @@ public class RobotContainer {
         ))
         .andThen(new WaitCommand(0.7))
         .andThen(new ParallelRaceGroup(
-            new RotateDegrees(drivesystem, 180, gyro::getAngle, () -> 0.5),
+            new RotateDegrees(drivesystem, 160, gyro::getAngle, () -> 0.5),
             new StartShooter(shooter, shootHighValue.getAsDouble())
         ))
         .andThen(new RotateToTarget(

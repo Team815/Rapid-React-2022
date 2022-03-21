@@ -106,7 +106,7 @@ public class Drivesystem extends SubsystemBase {
     public double getPidRotation() {
         var measurement = limelightX.getDouble(0);
         var output = pidControllerRotation.calculate(measurement);
-        return Math.min(0.30, Math.abs(output)) * Math.signum(output);
+        return Math.min(0.35, Math.abs(output)) * Math.signum(output);
     }
 
     public double getPidDistance(){
