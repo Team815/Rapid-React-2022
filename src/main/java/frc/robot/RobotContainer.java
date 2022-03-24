@@ -67,8 +67,8 @@ public class RobotContainer {
         var buttonDrop = controller.getButton(Button.TRIGGER_LEFT);
         var buttonShootHigh = (JoystickButton) controller.getButton(Button.A);
         var buttonShootLow = (JoystickButton) controller.getButton(Button.B);
-        var buttonClimberDown = controller.getButton(Button.START);
-        var buttonClimberUp = controller.getButton(Button.SELECT);
+        var buttonClimberDown = controller.getButton(Button.SELECT);
+        var buttonClimberUp = controller.getButton(Button.START);
 
         buttonClimberUp.whenPressed(new InstantCommand(climber::moveUp));
         buttonClimberUp.whenReleased(new InstantCommand(climber::disable));
