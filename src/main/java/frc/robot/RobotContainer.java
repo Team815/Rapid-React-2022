@@ -35,15 +35,17 @@ public class RobotContainer {
     private final Shooter shooter = new Shooter(Constants.INDEX_MOTOR_SHOOTER_1, Constants.INDEX_MOTOR_SHOOTER_2);
     private final AHRS gyro = new AHRS(SerialPort.Port.kUSB);
     private final RobotController controller = new RobotController(0);
-    private final DoubleSupplier shootHighValue = () -> SmartDashboard.getNumber("Shooter Speed High", 25000);
+    private final DoubleSupplier shootHighValue = () -> SmartDashboard.getNumber("Shooter Speed High", 22000);
     private final DoubleSupplier shootLowValue = () -> SmartDashboard.getNumber("Shooter Speed Low", 15000);
+    private final DoubleSupplier autonValue = () -> SmartDashboard.getNumber("Auton Speed", 25000);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
         configureButtonBindings();
-        SmartDashboard.putNumber("Shooter Speed High", 25000);
+        SmartDashboard.putNumber("Auton Speed", 25000);
+        SmartDashboard.putNumber("Shooter Speed High", 22000);
         SmartDashboard.putNumber("Shooter Speed Low", 15000);
         SmartDashboard.putNumber("Auton Num Balls", 3);
 
@@ -139,7 +141,21 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        var shoot1Ball = new ParallelRaceGroup(
+              
+        // var numberOfBalls = (int)SmartDashboard.getNumber("Auton Num Balls", 2);
+
+        // var commandToRun = numberOfBalls == 1 ? Shoot1Ball() :
+        //                     numberOfBalls == 2 ? Shoot2Balls() :
+        //                     Shoot3Balls();       
+
+        return new ParallelRaceGroup(
+            Shoot3Balls(),
+            new WaitCommand(15));
+    }
+
+    private Command Shoot1Ball()
+    {
+        var commandToRun = new ParallelRaceGroup(
             new Drive(drivesystem, () -> -0.5, () -> 0),
             new WaitCommand(0.4)
         )
@@ -148,7 +164,7 @@ public class RobotContainer {
             () -> 0,
             Limelight.limelightHub.getX()))
         .andThen(new ParallelRaceGroup(
-                new Shoot(storage, feeder, shooter, () -> false, () -> false, shootHighValue.getAsDouble()),
+                new Shoot(storage, feeder, shooter, () -> false, () -> false, autonValue.getAsDouble()),
                 new TrackTarget(
                     drivesystem,
                     () -> 0,
@@ -156,7 +172,12 @@ public class RobotContainer {
                 new WaitCommand(5)
         ));
 
-        var shoot2Balls = new ParallelRaceGroup(
+        return commandToRun;
+    }
+
+    private Command Shoot2Balls()
+    {
+        var commandToRun = new ParallelRaceGroup(
                 new Drive(drivesystem, () -> 0.5, drivesystem::getPidRotation),
                 new PickUpBall(pickup, storage),
                 new WaitCommand(1.7)
@@ -169,21 +190,27 @@ public class RobotContainer {
         .andThen(new WaitCommand(0.7))
         .andThen(new ParallelRaceGroup(
             new RotateDegrees(drivesystem, 160, gyro::getAngle, () -> 0.5),
-            new StartShooter(shooter, shootHighValue.getAsDouble())
+            new StartShooter(shooter, autonValue.getAsDouble())
         ))
         .andThen(new RotateToTarget(
             drivesystem,
             () -> 0,
             Limelight.limelightHub.getX()))
         .andThen(new ParallelRaceGroup(
-                new Shoot(storage, feeder, shooter, () -> false, () -> false, shootHighValue.getAsDouble()),
+                new Shoot(storage, feeder, shooter, () -> false, () -> false, autonValue.getAsDouble()),
                 new TrackTarget(
                     drivesystem,
                     () -> 0,
                     Limelight.limelightHub.getX()),
                 new WaitCommand(2)
         ));
-        var shoot3Balls =  shoot2Balls
+
+        return commandToRun;
+    }
+
+    private Command Shoot3Balls()
+    {
+        var commandToRun = Shoot2Balls()
                 .andThen(new RotateDegrees(drivesystem, -45, gyro::getAngle, () -> 0.5))
                 .andThen(new RotateToTarget(drivesystem, () -> 0, Limelight.limelightBall.getX()))
                 .andThen(new ParallelRaceGroup(
@@ -195,7 +222,7 @@ public class RobotContainer {
                 .andThen(new ParallelRaceGroup(
                     new RotateDegrees(drivesystem, 100, gyro::getAngle, () -> 0.5),
                     new PickUpBall(pickup, storage),
-                    new StartShooter(shooter, shootHighValue.getAsDouble())
+                    new StartShooter(shooter, autonValue.getAsDouble())
                 ))
                 .andThen(new RotateToTarget(
                     drivesystem,
@@ -206,21 +233,13 @@ public class RobotContainer {
                         new WaitCommand(0.7)
                 ))
                 .andThen(new ParallelRaceGroup(
-                        new Shoot(storage, feeder, shooter, () -> false, () -> false, shootHighValue.getAsDouble()),
+                        new Shoot(storage, feeder, shooter, () -> false, () -> false, autonValue.getAsDouble()),
                         new TrackTarget(
                             drivesystem,
                             () -> 0,
                             Limelight.limelightHub.getX())
                 ));
-        
-        var numberOfBalls = (int)SmartDashboard.getNumber("Auton Num Balls", 3);
-        
-        var commandToRun = numberOfBalls == 1 ? shoot1Ball :
-                            numberOfBalls == 2 ? shoot2Balls :
-                            shoot3Balls;
 
-        return new ParallelRaceGroup(
-            commandToRun,
-            new WaitCommand(15));
+        return commandToRun;
     }
 }
